@@ -1,2 +1,9 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<script lang="ts">
+	import { generator } from '$lib/levels/1_eat_food';
+	import WorldGrid from '../lib/WorldGrid.svelte';
+	import type { World } from '../lib/world.types';
+
+	let world = generator('hello10');
+</script>
+
+<WorldGrid {world} />

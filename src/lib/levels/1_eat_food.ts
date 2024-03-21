@@ -36,3 +36,12 @@ export const generator: WorldGenerator = (seed) => {
 
 	return { size, pieces };
 };
+
+export const defaultCode = `// *** Level 1: Eat Food *** //
+
+// The goal of this level is to eat all the food on the map.
+// Complete the 'nextMove' below to tell your character what to do.
+
+function nextMove(self : Piece) : Move {
+    // Your code goes here
+}`;

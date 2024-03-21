@@ -1,22 +1,32 @@
 <script lang="ts">
+	import CodeEditor from './CodeEditor.svelte';
 	import type { World } from './world.types';
 
 	export let world: World;
-	console.log(world);
+	export let defaultCode: string;
 </script>
 
-<div
-	class="grid"
-	style={`grid-template-columns: repeat(${world.size}, 1fr); grid-template-rows: repeat(${world.size}, 1fr)`}
->
-	{#each world.pieces as piece}
-		<div style={`grid-row: ${piece.y} / ${piece.y}; grid-column: ${piece.x} / ${piece.x}`}>
-			<img src={`pieces/${piece.type.toLowerCase()}.svg`} alt="piece" />
-		</div>
-	{/each}
-</div>
+<main>
+	<div
+		class="grid"
+		style={`grid-template-columns: repeat(${world.size}, 1fr); grid-template-rows: repeat(${world.size}, 1fr)`}
+	>
+		{#each world.pieces as piece}
+			<div style={`grid-row: ${piece.y} / ${piece.y}; grid-column: ${piece.x} / ${piece.x}`}>
+				<img src={`pieces/${piece.type.toLowerCase()}.svg`} alt="piece" />
+			</div>
+		{/each}
+	</div>
+	<CodeEditor {defaultCode} />
+</main>
 
 <style>
+	main {
+		display: flex;
+		align-items: center;
+		height: calc(100svh - 2rem);
+	}
+
 	.grid {
 		display: grid;
 		border: 1px solid #ccc;

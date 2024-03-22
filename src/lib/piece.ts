@@ -3,7 +3,7 @@ export type PieceType = 'Man' | 'Woman' | 'Food';
 export class Piece {
 	id: string;
 	owner: string;
-	type: 'Man' | 'Woman' | 'Food';
+	type: PieceType;
 	x: number;
 	y: number;
 	memory: Record<string, any>;
@@ -30,15 +30,3 @@ export type Move = {
 	dy: -1 | 0 | 1;
 	action: 'move' | 'eat' | 'reproduce';
 };
-
-export type World = {
-	size: number;
-	pieces: Piece[];
-};
-
-export type Coord = {
-	x: number;
-	y: number;
-};
-
-export type WorldGenerator = (seed: string) => World;

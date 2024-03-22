@@ -73,4 +73,12 @@ export class RandomNumberGenerator {
 		const d = this.nextInt(4294967296);
 		return `${a.toString(16)}-${b.toString(16)}-${c.toString(16)}-${d.toString(16)}`;
 	}
+	public toShuffled<T>(arr: T[]): T[] {
+		const copy = arr.slice();
+		for (let i = copy.length - 1; i > 0; i--) {
+			const j = this.nextInt(i + 1);
+			[copy[i], copy[j]] = [copy[j], copy[i]];
+		}
+		return copy;
+	}
 }

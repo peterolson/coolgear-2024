@@ -2,10 +2,12 @@
 	import { onDestroy, onMount } from 'svelte';
 	import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
 	import type * as m from 'monaco-editor';
+	import type { World } from './world';
 
 	export const ssr = false;
 	export let defaultCode: string;
 	export let lib: Record<string, string>;
+	export let world: World;
 
 	let monaco: typeof m;
 	let editorElement: HTMLDivElement;
@@ -27,8 +29,6 @@
 			const libUri = `ts:filename/${key}.d.ts`;
 			monaco.languages.typescript.typescriptDefaults.addExtraLib(libSource, libUri);
 			monaco.editor.createModel(libSource, 'typescript', monaco.Uri.parse(libUri));
-			console.log(libSource);
-			console.log(libUri);
 		}
 
 		editor = monaco.editor.create(editorElement, {
@@ -45,19 +45,20 @@
 	});
 
 	async function runCode() {
-		const code = model.getValue();
-		console.log(code);
 		const worker = await monaco.languages.typescript.getTypeScriptWorker();
 		const client = await worker(model.uri);
 		const response = await client.getEmitOutput(model.uri.toString());
-		console.log(response);
+		const compiledCode = response.outputFiles[0].text;
+		world.setCode('human', compiledCode);
+		await world.step();
+		world.pieces = world.pieces;
 	}
 </script>
 
 <section>
 	<div bind:this={editorElement} />
 	<nav>
-		<button on:click={runCode}>Run</button>
+		<button on:click={runCode}>Step</button>
 	</nav>
 </section>
 

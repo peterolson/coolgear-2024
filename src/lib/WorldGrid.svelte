@@ -1,6 +1,6 @@
 <script lang="ts">
 	import CodeEditor from './CodeEditor.svelte';
-	import type { World } from './world.types';
+	import type { World } from './world';
 
 	export let world: World;
 	export let defaultCode: string;
@@ -18,7 +18,7 @@
 			</div>
 		{/each}
 	</div>
-	<CodeEditor {defaultCode} {lib} />
+	<CodeEditor {defaultCode} {lib} bind:world />
 </main>
 
 <style>

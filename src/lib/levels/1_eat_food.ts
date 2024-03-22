@@ -1,5 +1,6 @@
 import { RandomNumberGenerator } from '$lib/random';
-import { Piece, type WorldGenerator } from '$lib/world.types';
+import { World, type WorldGenerator } from '$lib/world';
+import { Piece } from '$lib/piece';
 
 export const generator: WorldGenerator = (seed) => {
 	const r = new RandomNumberGenerator(seed);
@@ -36,7 +37,11 @@ export const generator: WorldGenerator = (seed) => {
 		);
 	}
 
-	return { size, pieces };
+	return new World({
+		size,
+		pieces,
+		r
+	});
 };
 
 export const defaultCode = `// *** Level 1: Eat Food *** //
@@ -47,7 +52,7 @@ export const defaultCode = `// *** Level 1: Eat Food *** //
 function nextMove(self : Piece) : Move {
     // Your code goes here
     return {
-        dx: 0,
+        dx: 1,
         dy: 0,
         action: 'move'
     };

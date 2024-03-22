@@ -1,5 +1,5 @@
 import { RandomNumberGenerator } from '$lib/random';
-import type { Piece, WorldGenerator } from '$lib/world.types';
+import { Piece, type WorldGenerator } from '$lib/world.types';
 
 export const generator: WorldGenerator = (seed) => {
 	const r = new RandomNumberGenerator(seed);
@@ -25,13 +25,15 @@ export const generator: WorldGenerator = (seed) => {
 			continue;
 		}
 		occupiedCoords.add(coordKey);
-		pieces.push({
-			id: r.nextUUID(),
-			owner: 'map',
-			type: 'Food',
-			...coord,
-			memory: {}
-		});
+		pieces.push(
+			new Piece({
+				id: r.nextUUID(),
+				owner: 'map',
+				type: 'Food',
+				...coord,
+				memory: {}
+			})
+		);
 	}
 
 	return { size, pieces };
@@ -44,4 +46,9 @@ export const defaultCode = `// *** Level 1: Eat Food *** //
 
 function nextMove(self : Piece) : Move {
     // Your code goes here
+    return {
+        dx: 0,
+        dy: 0,
+        action: 'move'
+    };
 }`;

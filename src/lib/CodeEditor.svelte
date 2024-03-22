@@ -5,6 +5,7 @@
 
 	export const ssr = false;
 	export let defaultCode: string;
+	export let lib: Record<string, string>;
 
 	let monaco: typeof m;
 	let editorElement: HTMLDivElement;
@@ -21,19 +22,14 @@
 
 		monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true);
 
-		const libSource = [
-			'declare class Facts {',
-			'    /**',
-			'     * Returns the next fact',
-			'     */',
-			'    static next():string',
-			'}'
-		].join('\n');
-		const libUri = 'ts:filename/facts.d.ts';
-		monaco.languages.typescript.typescriptDefaults.addExtraLib(libSource, libUri);
-		// When resolving definitions and references, the editor will try to use created models.
-		// Creating a model for the library allows "peek definition/references" commands to work with the library.
-		monaco.editor.createModel(libSource, 'typescript', monaco.Uri.parse(libUri));
+		for (const key in lib) {
+			const libSource = lib[key];
+			const libUri = `ts:filename/${key}.d.ts`;
+			monaco.languages.typescript.typescriptDefaults.addExtraLib(libSource, libUri);
+			monaco.editor.createModel(libSource, 'typescript', monaco.Uri.parse(libUri));
+			console.log(libSource);
+			console.log(libUri);
+		}
 
 		editor = monaco.editor.create(editorElement, {
 			value: defaultCode,

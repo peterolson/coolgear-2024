@@ -4,6 +4,7 @@
 
 	export let world: World;
 	export let defaultCode: string;
+	export let lib: Record<string, string>;
 </script>
 
 <main>
@@ -17,7 +18,7 @@
 			</div>
 		{/each}
 	</div>
-	<CodeEditor {defaultCode} />
+	<CodeEditor {defaultCode} {lib} />
 </main>
 
 <style>

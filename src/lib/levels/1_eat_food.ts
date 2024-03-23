@@ -40,7 +40,7 @@ export const generator: WorldGenerator = (seed) => {
 	return new World({
 		size,
 		pieces,
-		r
+		randomSeed: seed
 	});
 };
 

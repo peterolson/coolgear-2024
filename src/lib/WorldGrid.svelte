@@ -12,10 +12,21 @@
 		class="grid"
 		style={`grid-template-columns: repeat(${world.size}, 1fr); grid-template-rows: repeat(${world.size}, 1fr)`}
 	>
-		{#each world.pieces as piece}
-			<div style={`grid-row: ${piece.y} / ${piece.y}; grid-column: ${piece.x} / ${piece.x}`}>
-				<img src={`pieces/${piece.type.toLowerCase()}.svg`} alt="piece" />
-			</div>
+		{#each Array(world.size) as _, y}
+			{#each Array(world.size) as _, x}
+				{@const piece = world.pieces.find((p) => p.x === x && p.y === y)}
+				{#if piece}
+					<img
+						class="grid-cell"
+						src={`pieces/${piece.type.toLowerCase()}.svg`}
+						alt="piece"
+						width="100"
+						height="100"
+					/>
+				{:else}
+					<div class="grid-cell"></div>
+				{/if}
+			{/each}
 		{/each}
 	</div>
 	<CodeEditor {defaultCode} {lib} bind:world />
@@ -37,5 +48,11 @@
 	img {
 		width: 100%;
 		height: 100%;
+		aspect-ratio: 1 / 1;
+	}
+
+	.grid-cell {
+		width: 100%;
+		aspect-ratio: 1 / 1;
 	}
 </style>

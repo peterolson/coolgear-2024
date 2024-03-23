@@ -1,5 +1,9 @@
 function createFunction(code: string) {
-	return eval(`(() => {${code}; return nextMove;})()`);
+	try {
+		return eval(`(() => {${code}; return nextMove;})()`);
+	} catch (e) {
+		return () => ({ error: String(e) });
+	}
 }
 
 const functionMap = new Map<string, (self: Piece) => Move>();
@@ -13,7 +17,11 @@ function evaluateFunction(user: string, piece: Piece) {
 	if (!func) {
 		return null;
 	}
-	return func(piece);
+	try {
+		return func(piece);
+	} catch (e) {
+		return { error: String(e) };
+	}
 }
 
 self.onmessage = (e) => {

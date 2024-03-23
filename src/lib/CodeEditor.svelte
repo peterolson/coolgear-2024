@@ -44,21 +44,59 @@
 		editor?.dispose();
 	});
 
-	async function runCode() {
+	async function getCompiledCode() {
 		const worker = await monaco.languages.typescript.getTypeScriptWorker();
 		const client = await worker(model.uri);
 		const response = await client.getEmitOutput(model.uri.toString());
-		const compiledCode = response.outputFiles[0].text;
+		return response.outputFiles[0].text;
+	}
+
+	let isRunning = false;
+
+	async function runStep() {
+		isRunning = true;
+		const compiledCode = await getCompiledCode();
 		world.setCode('human', compiledCode);
 		await world.step();
 		world.pieces = world.pieces;
+		isRunning = false;
+	}
+
+	let delayMs = 100;
+
+	async function wait(ms: number) {
+		return new Promise((resolve) => setTimeout(resolve, ms));
+	}
+
+	async function run() {
+		isRunning = true;
+		const compiledCode = await getCompiledCode();
+		world.setCode('human', compiledCode);
+		await world.run(async () => {
+			if (delayMs > 0) {
+				world.pieces = world.pieces;
+				await wait(delayMs);
+			}
+		});
+		world.pieces = world.pieces;
+		isRunning = false;
+	}
+
+	function reset() {
+		world = world.reset();
 	}
 </script>
 
 <section>
 	<div bind:this={editorElement} />
 	<nav>
-		<button on:click={runCode}>Step</button>
+		<button on:click={runStep} disabled={isRunning}>Step</button>
+		<button on:click={run} disabled={isRunning}>Run</button>
+		<label
+			>Delay (ms):
+			<input type="number" bind:value={delayMs} min="0" max="2000" />
+		</label>
+		<button on:click={reset} disabled={isRunning}>Reset</button>
 	</nav>
 </section>
 

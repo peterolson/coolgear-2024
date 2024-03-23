@@ -48,6 +48,8 @@ export class World {
 	r: RandomNumberGenerator;
 	code: Record<string, string>;
 	initialState: string;
+	logs: { message: string; level: string; piece?: Piece; move?: Move }[];
+	moveCount: number;
 
 	constructor(obj: { size: number; pieces: Piece[]; randomSeed: string }) {
 		this.size = obj.size;
@@ -55,6 +57,8 @@ export class World {
 		this.r = new RandomNumberGenerator(obj.randomSeed);
 		this.code = {};
 		this.initialState = JSON.stringify(obj);
+		this.logs = [];
+		this.moveCount = 0;
 	}
 
 	reset() {
@@ -63,7 +67,25 @@ export class World {
 		this.pieces = obj.pieces;
 		this.r = new RandomNumberGenerator(obj.randomSeed);
 		this.code = {};
+		this.logs = [];
+		this.moveCount = 0;
 		return this;
+	}
+
+	private addToLog(message: string, level: string, piece?: Piece, move?: Move) {
+		this.logs.push({
+			message: message,
+			level,
+			piece: piece ? { ...piece } : undefined,
+			move: move ? { ...move } : undefined
+		});
+	}
+
+	private log(message: string, piece?: Piece, move?: Move) {
+		this.addToLog(message, 'info', piece, move);
+	}
+	private error(message: string, piece?: Piece, move?: Move) {
+		this.addToLog(message, 'error', piece, move);
 	}
 
 	async setCode(user: string, code: string) {
@@ -74,52 +96,63 @@ export class World {
 	async step() {
 		const moveablePieces = this.r.toShuffled(this.pieces.filter((p) => p.owner in this.code));
 		let hasMoved = false;
+		this.moveCount++;
+		this.log(`step ${this.moveCount}`);
 		for (const piece of moveablePieces) {
+			const logPiece = { ...piece };
 			try {
 				const move = await evaluateFunction(piece.owner, piece);
 				if ('error' in move) {
-					console.error('error evaluating function:', move.error);
+					this.error(`error evaluating function: ${move.error}`, logPiece);
 					continue;
 				}
 				if (!move) {
-					console.error('move is undefined');
+					this.error('move is undefined', logPiece);
 					continue;
 				}
 				if (move.dx !== 0 && move.dx !== 1 && move.dx !== -1) {
-					console.error('dx must be 0, 1, or -1');
+					this.error('dx must be 0, 1, or -1', logPiece, move);
 					continue;
 				}
 				if (move.dy !== 0 && move.dy !== 1 && move.dy !== -1) {
-					console.error('dy must be 0, 1, or -1');
+					this.error('dy must be 0, 1, or -1', logPiece, move);
+					continue;
+				}
+				if (move.dx === 0 && move.dy === 0 && move.action === 'move') {
+					this.log('sat still', logPiece, move);
 					continue;
 				}
 				const nextX = piece.x + move.dx;
 				const nextY = piece.y + move.dy;
 				if (nextX < 0 || nextX >= this.size || nextY < 0 || nextY >= this.size) {
-					console.error('move out of bounds');
+					this.error('cannot move out of bounds', logPiece, move);
 					continue;
 				}
 				if (move.action === 'move') {
 					if (this.pieces.some((p) => p.x === nextX && p.y === nextY)) {
-						console.error('cannot move into another piece');
+						this.error('cannot move there, already occupied', logPiece, move);
 						continue;
 					}
 					piece.x = nextX;
 					piece.y = nextY;
-					console.log('moved', piece);
+					this.log(`moved to (${nextX},${nextY})`, logPiece, move);
 					if (move.dx !== 0 || move.dy !== 0) hasMoved = true;
 				} else if (move.action === 'eat') {
 					const eaten = this.pieces.find((p) => p.x === nextX && p.y === nextY);
 					if (!eaten) {
-						console.error('nothing to eat there');
+						this.error('nothing to eat there', logPiece, move);
 						continue;
 					}
 					this.pieces = this.pieces.filter((p) => p !== eaten);
-					console.log('ate', eaten);
+					if (move.dx === 0 && move.dy === 0) {
+						this.log('committed suicide via autocannibalism', piece, move);
+					} else {
+						this.log('ate', piece, move);
+					}
 					hasMoved = true;
 				}
 			} catch (e) {
-				console.error('error evaluating movie', e);
+				this.error('error evaluating function', logPiece);
 			}
 		}
 		return { hasMoved };
@@ -129,7 +162,8 @@ export class World {
 		const maxSteps = 1000;
 		const maxConsecutiveNoMoves = 5;
 		let consecutiveNoMoves = 0;
-		for (let i = 0; i < maxSteps; i++) {
+		let i = 0;
+		for (; i < maxSteps; i++) {
 			const { hasMoved } = await this.step();
 			await notifyStepCompleted();
 			if (hasMoved) {
@@ -138,9 +172,11 @@ export class World {
 				consecutiveNoMoves++;
 			}
 			if (consecutiveNoMoves >= maxConsecutiveNoMoves) {
+				this.log(`no moves for ${maxConsecutiveNoMoves} consecutive steps, stopping...`);
 				break;
 			}
 		}
+		this.log(`stopped after ${this.moveCount} steps`);
 	}
 }
 

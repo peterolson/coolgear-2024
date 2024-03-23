@@ -59,13 +59,20 @@
 		world.setCode('human', compiledCode);
 		await world.step();
 		world.pieces = world.pieces;
+		world.logs = world.logs;
+		scrollToBottom();
 		isRunning = false;
 	}
 
 	let delayMs = 100;
+	let logDiv: HTMLDivElement;
 
 	async function wait(ms: number) {
 		return new Promise((resolve) => setTimeout(resolve, ms));
+	}
+
+	function scrollToBottom() {
+		logDiv.scrollTop = logDiv.scrollHeight;
 	}
 
 	async function run() {
@@ -75,21 +82,61 @@
 		await world.run(async () => {
 			if (delayMs > 0) {
 				world.pieces = world.pieces;
+				world.logs = world.logs;
 				await wait(delayMs);
+				scrollToBottom();
 			}
 		});
 		world.pieces = world.pieces;
+		world.logs = world.logs;
+		await wait(delayMs);
+		scrollToBottom();
 		isRunning = false;
 	}
 
 	function reset() {
 		world = world.reset();
 	}
+
+	let activeTab = 'code';
 </script>
 
 <section>
-	<div bind:this={editorElement} />
 	<nav>
+		<button on:click={() => (activeTab = 'code')} class:active-tab={activeTab === 'code'}>
+			Code
+		</button>
+		<button on:click={() => (activeTab = 'logs')} class:active-tab={activeTab === 'logs'}>
+			Logs
+		</button>
+	</nav>
+	<div class:hidden={activeTab !== 'code'} bind:this={editorElement} class="code-editor" />
+	<div class:hidden={activeTab !== 'logs'} class="logs" bind:this={logDiv}>
+		{#each world.logs as log}
+			<div class="log" class:error-log={log.level === 'error'}>
+				{#if log.message.startsWith('step ')}
+					<br />
+				{/if}
+				{#if log.level === 'error'}
+					❗
+				{/if}
+				{#if log.piece}
+					<img
+						src={`pieces/${log.piece.type.toLowerCase()}.svg`}
+						alt="piece"
+						width="16"
+						height="16"
+					/>
+					({log.piece.x}, {log.piece.y})
+				{/if}
+				{#if log.move}
+					{` -> (${log.move.action}, ${log.move.dx === 1 ? '+1' : log.move.dx}, ${log.move.dy})`}
+				{/if}
+				{log.message}
+			</div>
+		{/each}
+	</div>
+	<footer>
 		<button on:click={runStep} disabled={isRunning}>Step</button>
 		<button on:click={run} disabled={isRunning}>Run</button>
 		<label
@@ -97,7 +144,7 @@
 			<input type="number" bind:value={delayMs} min="0" max="2000" />
 		</label>
 		<button on:click={reset} disabled={isRunning}>Reset</button>
-	</nav>
+	</footer>
 </section>
 
 <style>
@@ -105,12 +152,61 @@
 		height: 100%;
 		flex: 1;
 		display: grid;
-		grid-template-rows: 1fr 2em;
-		gap: 8px;
+		grid-template-rows: 36px 1fr 2em;
 		padding: 8px;
 	}
 
-	div {
+	.code-editor {
 		border: 1px dotted #ccc;
+	}
+
+	.hidden {
+		display: none;
+	}
+
+	nav {
+		display: flex;
+	}
+
+	nav button {
+		background: none;
+		border: none;
+		cursor: pointer;
+		flex: 1;
+		border: 1px solid #eee;
+		border-radius: 8px;
+		border-bottom: none;
+		border-bottom-left-radius: 0;
+		border-bottom-right-radius: 0;
+	}
+
+	.active-tab {
+		font-weight: bold;
+		background-color: #eee;
+		border-color: #ccc;
+	}
+	footer {
+		margin-top: 8px;
+	}
+
+	.logs {
+		overflow: auto;
+		font-family: monospace;
+	}
+
+	.logs .log {
+		display: flex;
+		align-items: center;
+		gap: 4px;
+	}
+
+	.logs .log img {
+		width: 16px;
+		height: 16px;
+	}
+
+	.error-log {
+		color: rgb(64, 0, 0);
+		background-color: rgb(255, 200, 200);
 	}
 </style>

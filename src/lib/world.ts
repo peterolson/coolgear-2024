@@ -35,8 +35,8 @@ export function setFunction(user: string, code: string) {
 	return awaitResponse('setFunction', { user, code });
 }
 
-export async function evaluateFunction(user: string, piece: Piece) {
-	const data = (await awaitResponse('evaluateFunction', { user, piece })) as {
+export async function evaluateFunction(user: string, piece: Piece, visiblePieces: Piece[]) {
+	const data = (await awaitResponse('evaluateFunction', { user, piece, visiblePieces })) as {
 		move: Move | { error: string };
 	};
 	return data.move;
@@ -59,6 +59,15 @@ export class World {
 		this.initialState = JSON.stringify(obj);
 		this.logs = [];
 		this.moveCount = 0;
+		listeners.set('log', (e) => {
+			const { type, args } = e;
+			const message = args.map((a: any) => JSON.stringify(a, null, 2)).join(' ');
+			if (type === 'info') {
+				this.log(message);
+			} else if (type === 'error') {
+				this.error(message);
+			}
+		});
 	}
 
 	reset() {
@@ -102,7 +111,13 @@ export class World {
 		for (const piece of moveablePieces) {
 			const logPiece = { ...piece };
 			try {
-				const move = await evaluateFunction(piece.owner, piece);
+				const visiblePieces = this.pieces.filter((p) => {
+					const dx = Math.abs(p.x - piece.x);
+					const dy = Math.abs(p.y - piece.y);
+					const isSelf = p.id === piece.id;
+					return !isSelf && dx <= 3 && dy <= 3;
+				});
+				const move = await evaluateFunction(piece.owner, piece, visiblePieces);
 				if ('error' in move) {
 					this.error(`error evaluating function: ${move.error}`, logPiece);
 					continue;

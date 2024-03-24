@@ -59,3 +59,5 @@ declare type Move = {
 	 */
 	action: 'move' | 'eat' | 'reproduce';
 };
+
+declare function log(...args: any[]): void;

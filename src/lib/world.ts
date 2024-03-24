@@ -48,7 +48,7 @@ export class World {
 	r: RandomNumberGenerator;
 	code: Record<string, string>;
 	initialState: string;
-	logs: { message: string; level: string; piece?: Piece; move?: Move }[];
+	logs: { message: string; level: string; piece?: Piece; move?: Move; recipient?: Piece }[];
 	moveCount: number;
 
 	constructor(obj: { size: number; pieces: Piece[]; randomSeed: string }) {
@@ -72,20 +72,21 @@ export class World {
 		return this;
 	}
 
-	private addToLog(message: string, level: string, piece?: Piece, move?: Move) {
+	private addToLog(message: string, level: string, piece?: Piece, move?: Move, recipient?: Piece) {
 		this.logs.push({
 			message: message,
 			level,
 			piece: piece ? { ...piece } : undefined,
-			move: move ? { ...move } : undefined
+			move: move ? { ...move } : undefined,
+			recipient: recipient ? { ...recipient } : undefined
 		});
 	}
 
-	private log(message: string, piece?: Piece, move?: Move) {
-		this.addToLog(message, 'info', piece, move);
+	private log(message: string, piece?: Piece, move?: Move, recipient?: Piece) {
+		this.addToLog(message, 'info', piece, move, recipient);
 	}
-	private error(message: string, piece?: Piece, move?: Move) {
-		this.addToLog(message, 'error', piece, move);
+	private error(message: string, piece?: Piece, move?: Move, recipient?: Piece) {
+		this.addToLog(message, 'error', piece, move, recipient);
 	}
 
 	async setCode(user: string, code: string) {
@@ -125,12 +126,12 @@ export class World {
 				const nextX = piece.x + move.dx;
 				const nextY = piece.y + move.dy;
 				if (nextX < 0 || nextX >= this.size || nextY < 0 || nextY >= this.size) {
-					this.error('cannot move out of bounds', logPiece, move);
+					this.error('cannot move out of bounds!', logPiece, move);
 					continue;
 				}
 				if (move.action === 'move') {
 					if (this.pieces.some((p) => p.x === nextX && p.y === nextY)) {
-						this.error('cannot move there, already occupied', logPiece, move);
+						this.error('cannot move there, already occupied!', logPiece, move);
 						continue;
 					}
 					piece.x = nextX;
@@ -140,15 +141,22 @@ export class World {
 				} else if (move.action === 'eat') {
 					const eaten = this.pieces.find((p) => p.x === nextX && p.y === nextY);
 					if (!eaten) {
-						this.error('nothing to eat there', logPiece, move);
+						this.error('nothing to eat there!', logPiece, move);
+						continue;
+					}
+
+					if (move.dx === 0 && move.dy === 0) {
+						this.pieces = this.pieces.filter((p) => p !== eaten);
+						this.log('committed suicide via autocannibalism', piece, move);
+						hasMoved = true;
+						continue;
+					}
+					if (eaten.type !== 'food') {
+						this.error("can't eat that, it's not edible!");
 						continue;
 					}
 					this.pieces = this.pieces.filter((p) => p !== eaten);
-					if (move.dx === 0 && move.dy === 0) {
-						this.log('committed suicide via autocannibalism', piece, move);
-					} else {
-						this.log('ate', piece, move);
-					}
+					this.log('ate', piece, move, eaten);
 					hasMoved = true;
 				}
 			} catch (e) {

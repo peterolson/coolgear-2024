@@ -122,7 +122,7 @@
 				{/if}
 				{#if log.piece}
 					<img
-						src={`pieces/${log.piece.type.toLowerCase()}.svg`}
+						src={`pieces/${log.piece.type}${log.piece.gender || ''}.svg`}
 						alt="piece"
 						width="16"
 						height="16"
@@ -130,9 +130,18 @@
 					({log.piece.x}, {log.piece.y})
 				{/if}
 				{#if log.move}
-					{` -> (${log.move.action}, ${log.move.dx === 1 ? '+1' : log.move.dx}, ${log.move.dy})`}
+					{` -> (${log.move.action}, ${log.move.dx === 1 ? '+1' : log.move.dx}, ${log.move.dy}): `}
 				{/if}
 				{log.message}
+				{#if log.recipient}
+					<img
+						src={`pieces/${log.recipient.type}${log.recipient.gender || ''}.svg`}
+						alt="piece"
+						width="16"
+						height="16"
+					/>
+					({log.recipient.x}, {log.recipient.y})
+				{/if}
 			</div>
 		{/each}
 	</div>

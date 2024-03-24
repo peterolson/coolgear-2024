@@ -2,7 +2,8 @@
  * Object representing a piece in the world, such as a character or food.
  * @class
  * @property {string} id - Unique identifier for the piece.
- * @property {'Man' | 'Woman' | 'Food'} type - Type of the piece.
+ * @property {'human' | 'food'} type - Type of the piece.
+ * @property {'male' | 'female' | undefined} gender - Gender of the piece, if the piece is capable of reproduction.
  * @property {string} owner - Who controls the piece. Uses a user's name or 'map'.
  * @property {number} x - x-coordinate of the piece.
  * @property {number} y - y-coordinate of the piece.
@@ -16,7 +17,11 @@ declare class Piece {
 	/**
 	 * Type of the piece.
 	 */
-	type: 'Man' | 'Woman' | 'Food';
+	type: 'human' | 'food';
+	/**
+	 * Gender of the piece, if the piece is capable of reproduction.
+	 */
+	gender: 'male' | 'female' | undefined;
 	/**
 	 * Who controls the piece. Uses a user's name or 'map'.
 	 */

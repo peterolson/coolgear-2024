@@ -1,9 +1,11 @@
-export type PieceType = 'Man' | 'Woman' | 'Food';
+export type PieceType = 'human' | 'food';
+export type Gender = 'male' | 'female' | undefined;
 
 export class Piece {
 	id: string;
 	owner: string;
 	type: PieceType;
+	gender: Gender;
 	x: number;
 	y: number;
 	memory: Record<string, any>;
@@ -12,6 +14,7 @@ export class Piece {
 		id: string;
 		owner: string;
 		type: PieceType;
+		gender: Gender;
 		x: number;
 		y: number;
 		memory: Record<string, any>;
@@ -19,6 +22,7 @@ export class Piece {
 		this.id = obj.id;
 		this.owner = obj.owner;
 		this.type = obj.type;
+		this.gender = obj.gender;
 		this.x = obj.x;
 		this.y = obj.y;
 		this.memory = obj.memory;

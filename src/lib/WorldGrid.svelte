@@ -18,10 +18,11 @@
 				{#if piece}
 					<img
 						class="grid-cell"
-						src={`pieces/${piece.type.toLowerCase()}.svg`}
+						src={`pieces/${piece.type}${piece.gender || ''}.svg`}
 						alt="piece"
 						width="100"
 						height="100"
+						title={`${piece.owner} ${piece.type} ${piece.gender || ''} (${piece.x}, ${piece.y})`}
 					/>
 				{:else}
 					<div class="grid-cell"></div>

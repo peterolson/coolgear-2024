@@ -1,6 +1,7 @@
 import { RandomNumberGenerator } from './random';
+import { Piece } from './piece';
 
-let worker = new Worker(new URL('$lib/codeWorker', import.meta.url));
+let worker = new Worker(new URL('$lib/codeWorker', import.meta.url), { type: 'module' });
 
 const listeners = new Map<string, (e: any) => void>();
 
@@ -20,7 +21,7 @@ async function awaitResponse(type: string, args: Record<string, any>) {
 			listeners.delete(id);
 			console.error('timeout! took longer than 1s to respond');
 			worker.terminate();
-			worker = new Worker(new URL('$lib/codeWorker', import.meta.url));
+			worker = new Worker(new URL('$lib/codeWorker', import.meta.url), { type: 'module' });
 			resolve(null);
 		}, 1000);
 		listeners.set(id, (e) => {
@@ -35,8 +36,16 @@ export function setFunction(user: string, code: string) {
 	return awaitResponse('setFunction', { user, code });
 }
 
-export async function evaluateFunction(user: string, piece: Piece, visiblePieces: Piece[]) {
-	const data = (await awaitResponse('evaluateFunction', { user, piece, visiblePieces })) as {
+export async function evaluateFunction(
+	user: string,
+	piece: Piece,
+	world: {
+		pieces: Piece[];
+		size: number;
+		moveCount: number;
+	}
+) {
+	const data = (await awaitResponse('evaluateFunction', { user, piece, world })) as {
 		move: Move | { error: string };
 	};
 	return data.move;
@@ -48,7 +57,13 @@ export class World {
 	r: RandomNumberGenerator;
 	code: Record<string, string>;
 	initialState: string;
-	logs: { message: string; level: string; piece?: Piece; move?: Move; recipient?: Piece }[];
+	logs: {
+		message: string;
+		level: string;
+		piece?: Record<string, any>;
+		move?: Move;
+		recipient?: Record<string, any>;
+	}[];
 	moveCount: number;
 
 	constructor(obj: { size: number; pieces: Piece[]; randomSeed: string }) {
@@ -73,7 +88,7 @@ export class World {
 	reset() {
 		const obj = JSON.parse(this.initialState);
 		this.size = obj.size;
-		this.pieces = obj.pieces;
+		this.pieces = obj.pieces.map((p: Piece) => new Piece(p));
 		this.r = new RandomNumberGenerator(obj.randomSeed);
 		this.code = {};
 		this.logs = [];
@@ -85,9 +100,9 @@ export class World {
 		this.logs.push({
 			message: message,
 			level,
-			piece: piece ? { ...piece } : undefined,
+			piece: piece ? piece.toJSON() : undefined,
 			move: move ? { ...move } : undefined,
-			recipient: recipient ? { ...recipient } : undefined
+			recipient: recipient ? recipient.toJSON() : undefined
 		});
 	}
 
@@ -109,15 +124,14 @@ export class World {
 		this.moveCount++;
 		this.log(`step ${this.moveCount}`);
 		for (const piece of moveablePieces) {
-			const logPiece = { ...piece };
+			const logPiece = piece.clone();
 			try {
-				const visiblePieces = this.pieces.filter((p) => {
-					const dx = Math.abs(p.x - piece.x);
-					const dy = Math.abs(p.y - piece.y);
-					const isSelf = p.id === piece.id;
-					return !isSelf && dx <= 3 && dy <= 3;
-				});
-				const move = await evaluateFunction(piece.owner, piece, visiblePieces);
+				const world = {
+					pieces: this.pieces,
+					size: this.size,
+					moveCount: this.moveCount
+				};
+				const move = await evaluateFunction(piece.owner, piece, world);
 				if ('error' in move) {
 					this.error(`error evaluating function: ${move.error}`, logPiece);
 					continue;

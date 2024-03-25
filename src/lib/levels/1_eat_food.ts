@@ -53,19 +53,7 @@ export const defaultCode = `// *** Level 1: Eat Food *** //
 // The goal of this level is to eat all the food on the map.
 // Complete the 'nextMove' function below to tell your character what to do.
 
-// The 'nextMove' function takes two arguments:
-// - 'self' is your character, a Piece object with the following properties:
-//   - x, y: your character's current position
-//   - memory: an object where you can store any information persisted between turns
-// - 'visiblePieces' is an array of Piece objects that your character can see
-//    your character can see pieces that are within 3 squares of it in any direction
-// The 'nextMove' function should return a Move object with the following properties:
-// - dx, dy: the change in the x and y directions
-//   - dx should be 0, 1, or -1
-//   - dy should be 0, 1, or -1
-// - action: a string indicating what to do, either 'move' or 'eat'
-
-function nextMove(self : Piece, visiblePieces : Piece[]) : Move {
+function nextMove(self : Piece, world: World) : Move {
     // Your code goes here
     return {
         dx: 1,

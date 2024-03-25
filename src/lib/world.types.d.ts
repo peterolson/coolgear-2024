@@ -84,7 +84,7 @@ declare class Piece {
 	 * @param {World} world - The world to search for the closest piece in.
 	 * @returns {Piece | null} The closest piece, or null if no other pieces are in the world.
 	 */
-	findClosest(world: World): Piece | null;
+	findClosestPiece(world: World): Piece | null;
 
 	/**
 	 * Checks if a piece is adjacent to another piece.

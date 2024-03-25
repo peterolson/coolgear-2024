@@ -65,8 +65,14 @@ export class World {
 		recipient?: Record<string, any>;
 	}[];
 	moveCount: number;
+	victoryCondition: (w: World) => boolean;
 
-	constructor(obj: { size: number; pieces: Piece[]; randomSeed: string }) {
+	constructor(obj: {
+		size: number;
+		pieces: Piece[];
+		randomSeed: string;
+		victoryCondition: (w: World) => boolean;
+	}) {
 		this.size = obj.size;
 		this.pieces = obj.pieces;
 		this.r = new RandomNumberGenerator(obj.randomSeed);
@@ -83,6 +89,7 @@ export class World {
 				this.error(message);
 			}
 		});
+		this.victoryCondition = obj.victoryCondition;
 	}
 
 	reset() {
@@ -203,6 +210,10 @@ export class World {
 		for (; i < maxSteps; i++) {
 			const { hasMoved } = await this.step();
 			await notifyStepCompleted();
+			if (this.victoryCondition(this)) {
+				this.log(`Victory! You solved this map in ${this.moveCount} steps!`);
+				return;
+			}
 			if (hasMoved) {
 				consecutiveNoMoves = 0;
 			} else {

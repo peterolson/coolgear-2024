@@ -44,7 +44,8 @@ export const generator: WorldGenerator = (seed) => {
 	return new World({
 		size,
 		pieces,
-		randomSeed: seed
+		randomSeed: seed,
+		victoryCondition: (w) => w.pieces.filter((p) => p.type === 'food').length === 0
 	});
 };
 

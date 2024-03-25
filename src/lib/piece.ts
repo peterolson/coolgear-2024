@@ -54,7 +54,7 @@ export class Piece {
 		return Math.max(Math.abs(this.x - piece.x), Math.abs(this.y - piece.y));
 	}
 
-	findClosest(world: World) {
+	findClosestPiece(world: World) {
 		let minDistance = Infinity;
 		let closestPiece: Piece | null = null;
 		for (const piece of world.pieces) {

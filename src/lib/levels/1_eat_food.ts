@@ -49,8 +49,7 @@ export const generator: WorldGenerator = (seed) => {
 	});
 };
 
-export const defaultCode = `// *** Level 1: Eat Food *** //
-
+export const defaultCode = `
 // The goal of this level is to eat all the food on the map.
 // Complete the 'nextMove' function below to tell your character what to do.
 
@@ -62,3 +61,5 @@ function nextMove(self : Piece, world: World) : Move {
         action: 'move'
     };
 }`;
+
+export const name = 'Eat Food';

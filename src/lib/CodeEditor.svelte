@@ -125,7 +125,7 @@
 				{/if}
 				{#if log.piece}
 					<img
-						src={`pieces/${log.piece.type}${log.piece.gender || ''}.svg`}
+						src={`/pieces/${log.piece.type}${log.piece.gender || ''}.svg`}
 						alt="piece"
 						width="16"
 						height="16"
@@ -138,7 +138,7 @@
 				{log.message}
 				{#if log.recipient}
 					<img
-						src={`pieces/${log.recipient.type}${log.recipient.gender || ''}.svg`}
+						src={`/pieces/${log.recipient.type}${log.recipient.gender || ''}.svg`}
 						alt="piece"
 						width="16"
 						height="16"

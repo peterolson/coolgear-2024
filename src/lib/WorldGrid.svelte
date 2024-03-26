@@ -18,7 +18,7 @@
 				{#if piece}
 					<img
 						class="grid-cell"
-						src={`pieces/${piece.type}${piece.gender || ''}.svg`}
+						src={`/pieces/${piece.type}${piece.gender || ''}.svg`}
 						alt="piece"
 						width="100"
 						height="100"
@@ -37,7 +37,7 @@
 	main {
 		display: flex;
 		align-items: center;
-		height: calc(100svh - 2rem);
+		height: calc(100svh - 64px);
 	}
 
 	.grid {

@@ -202,14 +202,18 @@ export class World {
 		return { hasMoved };
 	}
 
-	async run(notifyStepCompleted: () => Promise<void>) {
+	async run(notifyStepCompleted: () => Promise<boolean>) {
 		const maxSteps = 1000;
 		const maxConsecutiveNoMoves = 5;
 		let consecutiveNoMoves = 0;
 		let i = 0;
 		for (; i < maxSteps; i++) {
 			const { hasMoved } = await this.step();
-			await notifyStepCompleted();
+			const isStopped = await notifyStepCompleted();
+			if (isStopped) {
+				this.log('Stopped manually by user.');
+				return;
+			}
 			if (this.victoryCondition(this)) {
 				this.log(`Victory! You solved this map in ${this.moveCount} steps!`);
 				return;

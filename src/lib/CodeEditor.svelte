@@ -66,6 +66,7 @@
 
 	let delayMs = 100;
 	let logDiv: HTMLDivElement;
+	let isStopped = false;
 
 	async function wait(ms: number) {
 		return new Promise((resolve) => setTimeout(resolve, ms));
@@ -86,12 +87,14 @@
 				await wait(delayMs);
 				scrollToBottom();
 			}
+			return isStopped;
 		});
 		world.pieces = world.pieces;
 		world.logs = world.logs;
 		await wait(delayMs);
 		scrollToBottom();
 		isRunning = false;
+		isStopped = false;
 	}
 
 	function reset() {
@@ -148,6 +151,13 @@
 	<footer>
 		<button on:click={runStep} disabled={isRunning}>Step</button>
 		<button on:click={run} disabled={isRunning}>Run</button>
+		{#if isRunning}
+			<button
+				on:click={() => {
+					isStopped = true;
+				}}>Stop</button
+			>
+		{/if}
 		<label
 			>Delay (ms):
 			<input type="number" bind:value={delayMs} min="0" max="2000" />

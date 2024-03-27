@@ -1,7 +1,8 @@
 <script lang="ts">
 	import CodeEditor from './CodeEditor.svelte';
-	import type { User } from './db/db';
+	import type { CodeVersion, User } from './db/db';
 	import type { World, WorldGenerator } from './world';
+	import { shortcut } from './ui/shortcut';
 
 	export let generator: WorldGenerator;
 	export let defaultCode: string;
@@ -9,6 +10,7 @@
 	export let user: User;
 	export let level: number;
 	export let name: string;
+	export let codeVersions: CodeVersion[];
 
 	let randomSeed = '1';
 	let world = generator(randomSeed, user.displayName);
@@ -17,6 +19,10 @@
 		world = generator(randomSeed, user.displayName);
 	}
 </script>
+
+<svelte:head>
+	<title>Level {level}: {name}</title>
+</svelte:head>
 
 <main>
 	<div class="grid-container">
@@ -48,10 +54,16 @@
 				Random seed:
 				<input type="text" bind:value={randomSeed} />
 			</label>
-			<button on:click={resetWorld}>Reset</button>
+			<button
+				on:click={resetWorld}
+				use:shortcut={{ control: true, code: 'KeyR' }}
+				title="Hotkey: Ctrl + R"
+			>
+				Reset
+			</button>
 		</div>
 	</div>
-	<CodeEditor {defaultCode} {lib} user={user.displayName} bind:world />
+	<CodeEditor {defaultCode} {lib} user={user.displayName} {level} bind:codeVersions bind:world />
 </main>
 
 <style>

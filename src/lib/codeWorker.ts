@@ -30,7 +30,6 @@ function evaluateFunction(user: string, piece: Piece, world: World) {
 	}
 	try {
 		piece = new Piece(piece);
-		console.log(world);
 		world.pieces = world.pieces.map((p) => new Piece(p));
 		return func(piece, world);
 	} catch (e) {

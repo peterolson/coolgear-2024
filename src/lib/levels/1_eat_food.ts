@@ -63,3 +63,4 @@ function nextMove(self : Piece, world: World) : Move {
 }`;
 
 export const name = 'Eat Food';
+export const id = 'eat-food';

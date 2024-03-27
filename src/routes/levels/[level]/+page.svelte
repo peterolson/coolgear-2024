@@ -4,14 +4,14 @@
 	import type { PageData } from './$types';
 
 	export let data: PageData;
-	let { lib, level, user } = data;
+	let { lib, level, user, codeVersions } = data;
 
 	const currentLevel = levels[level - 1];
 	const { generator, defaultCode, name } = currentLevel;
 </script>
 
 {#if user}
-	<WorldGrid {generator} {defaultCode} {lib} {user} {level} {name} />
+	<WorldGrid {generator} {defaultCode} {lib} {user} {level} {name} {codeVersions} />
 {:else}
 	<p>You must be logged in to play.</p>
 {/if}

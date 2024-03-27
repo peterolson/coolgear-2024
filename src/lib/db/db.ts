@@ -9,16 +9,26 @@ export type User = {
 	passwordHash: string;
 };
 
+export type CodeVersion = {
+	_id: string;
+	levelId: string;
+	code: string;
+	userId: string;
+	createdAt: Date;
+};
+
 export class DB {
 	private static instance: DB;
 	private client: MongoClient;
 	private db: Db;
 	private userCollection: Collection<User>;
+	private codeVersionCollection: Collection<CodeVersion>;
 
 	private constructor() {
 		this.client = new MongoClient(MONGO_URL);
 		this.db = this.client.db('coolgear');
 		this.userCollection = this.db.collection('users');
+		this.codeVersionCollection = this.db.collection('codeVersions');
 	}
 
 	static getInstance() {
@@ -55,5 +65,27 @@ export class DB {
 			throw new Error('Incorrect password');
 		}
 		return user;
+	}
+
+	async saveCodeVersion(levelId: string, userId: string, code: string) {
+		const createdAt = new Date();
+		await this.codeVersionCollection.insertOne({
+			_id: crypto.randomUUID(),
+			levelId,
+			userId,
+			code,
+			createdAt
+		});
+	}
+
+	async getCodeVersions(levelId: string, userId: string) {
+		return await this.codeVersionCollection
+			.find(
+				{ levelId, userId },
+				{
+					sort: { createdAt: -1 }
+				}
+			)
+			.toArray();
 	}
 }

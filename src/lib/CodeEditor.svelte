@@ -8,6 +8,7 @@
 	export let defaultCode: string;
 	export let lib: Record<string, string>;
 	export let world: World;
+	export let user: string;
 
 	let monaco: typeof m;
 	let editorElement: HTMLDivElement;
@@ -56,7 +57,7 @@
 	async function runStep() {
 		isRunning = true;
 		const compiledCode = await getCompiledCode();
-		world.setCode('human', compiledCode);
+		world.setCode(user, compiledCode);
 		await world.step();
 		world.pieces = world.pieces;
 		world.logs = world.logs;
@@ -79,7 +80,7 @@
 	async function run() {
 		isRunning = true;
 		const compiledCode = await getCompiledCode();
-		world.setCode('human', compiledCode);
+		world.setCode(user, compiledCode);
 		await world.run(async () => {
 			if (delayMs > 0) {
 				world.pieces = world.pieces;
@@ -95,10 +96,6 @@
 		scrollToBottom();
 		isRunning = false;
 		isStopped = false;
-	}
-
-	function reset() {
-		world = world.reset();
 	}
 
 	let activeTab = 'code';
@@ -162,7 +159,6 @@
 			>Delay (ms):
 			<input type="number" bind:value={delayMs} min="0" max="2000" />
 		</label>
-		<button on:click={reset} disabled={isRunning}>Reset</button>
 	</footer>
 </section>
 

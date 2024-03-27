@@ -2,7 +2,7 @@ import { RandomNumberGenerator } from '$lib/random';
 import { World, type WorldGenerator } from '$lib/world';
 import { Piece } from '$lib/piece';
 
-export const generator: WorldGenerator = (seed) => {
+export const generator: WorldGenerator = (seed, user) => {
 	const r = new RandomNumberGenerator(seed);
 	const size = 20;
 	const pieces: Piece[] = [];
@@ -14,7 +14,7 @@ export const generator: WorldGenerator = (seed) => {
 	pieces.push(
 		new Piece({
 			id: r.nextUUID(),
-			owner: 'human',
+			owner: user,
 			type: 'human',
 			gender: 'male',
 			...humanCoord,

@@ -1,7 +1,10 @@
 import { RandomNumberGenerator } from './random';
 import { Piece } from './piece';
 
-let worker = new Worker(new URL('$lib/codeWorker', import.meta.url), { type: 'module' });
+let worker =
+	typeof Worker !== 'undefined'
+		? new Worker(new URL('$lib/codeWorker', import.meta.url), { type: 'module' })
+		: ({} as Worker);
 
 const listeners = new Map<string, (e: any) => void>();
 
@@ -237,4 +240,4 @@ export type Coord = {
 	y: number;
 };
 
-export type WorldGenerator = (seed: string) => World;
+export type WorldGenerator = (seed: string, user: string) => World;

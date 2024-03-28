@@ -1,7 +1,7 @@
 <script lang="ts">
 	import CodeEditor from './CodeEditor.svelte';
 	import type { CodeVersion, User } from './db/db';
-	import type { World, WorldGenerator } from './world';
+	import type { World, WorldGenerator, WorldScoring } from './world';
 	import { shortcut } from './ui/shortcut';
 
 	export let generator: WorldGenerator;
@@ -11,6 +11,7 @@
 	export let level: number;
 	export let name: string;
 	export let codeVersions: CodeVersion[];
+	export let scoring: WorldScoring;
 
 	let randomSeed = '1';
 	let world = generator(randomSeed, user.displayName);
@@ -74,6 +75,8 @@
 		bind:codeVersions
 		bind:world
 		bind:isRunning
+		{generator}
+		{scoring}
 	/>
 </main>
 

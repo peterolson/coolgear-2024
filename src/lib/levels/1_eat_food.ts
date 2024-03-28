@@ -1,5 +1,5 @@
 import { RandomNumberGenerator } from '$lib/random';
-import { World, type WorldGenerator } from '$lib/world';
+import { World, type WorldGenerator, type WorldScoring } from '$lib/world';
 import { Piece } from '$lib/piece';
 
 export const generator: WorldGenerator = (seed, user) => {
@@ -67,3 +67,9 @@ function nextMove(self : Piece, world: World) : Move {
 
 export const name = 'Eat Food';
 export const id = 'eat-food';
+
+export const scoring: WorldScoring = {
+	title: '# of steps',
+	evaluator: (world: World) => world.moveCount,
+	highestBest: false
+};

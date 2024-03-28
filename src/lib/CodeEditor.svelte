@@ -2,9 +2,10 @@
 	import { onDestroy, onMount } from 'svelte';
 	import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
 	import type * as m from 'monaco-editor';
-	import type { World } from './world';
+	import type { World, WorldGenerator, WorldScoring } from './world';
 	import type { CodeVersion } from './db/db';
 	import { shortcut } from './ui/shortcut';
+	import SubmitSolution from './SubmitSolution.svelte';
 
 	export let defaultCode: string;
 	export let lib: Record<string, string>;
@@ -12,6 +13,8 @@
 	export let user: string;
 	export let level: number;
 	export let codeVersions: CodeVersion[];
+	export let generator: WorldGenerator;
+	export let scoring: WorldScoring;
 
 	let selectedCodeVersion = codeVersions[0]?._id ?? 'default';
 
@@ -178,6 +181,11 @@
 			editor.setValue(defaultCode);
 		}
 	}
+
+	let isSubmitting = false;
+	function submitSolution() {
+		isSubmitting = true;
+	}
 </script>
 
 <section>
@@ -272,8 +280,18 @@
 				<option value="default">Default</option>
 			</select>
 		</label>
+
+		{#if world.isSolved()}
+			<span>
+				<button on:click={submitSolution}>Submit solution</button>
+			</span>
+		{/if}
 	</footer>
 </section>
+
+{#if isSubmitting}
+	<SubmitSolution bind:world {generator} {run} {user} {scoring} bind:delayMs />
+{/if}
 
 <style>
 	section {

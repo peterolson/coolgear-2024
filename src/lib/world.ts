@@ -239,6 +239,10 @@ export class World {
 		}
 		this.log(`stopped after ${this.moveCount} steps`);
 	}
+
+	isSolved() {
+		return this.victoryCondition(this);
+	}
 }
 
 export type Coord = {
@@ -247,3 +251,9 @@ export type Coord = {
 };
 
 export type WorldGenerator = (seed: string, user: string) => World;
+
+export type WorldScoring = {
+	title: string;
+	evaluator: (w: World) => number;
+	highestBest: boolean;
+};

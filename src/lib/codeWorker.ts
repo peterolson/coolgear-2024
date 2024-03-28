@@ -13,6 +13,7 @@ function createFunction(code: string) {
 	try {
 		return eval(`(() => {${code}; return nextMove;})()`);
 	} catch (e) {
+		console.error(e);
 		return () => ({ error: String(e) });
 	}
 }
@@ -29,10 +30,11 @@ function evaluateFunction(user: string, piece: Piece, world: World) {
 		return null;
 	}
 	try {
-		piece = new Piece(piece);
-		world.pieces = world.pieces.map((p) => new Piece(p));
+		piece = new Piece({ ...piece, world });
+		world.pieces = world.pieces.map((p) => new Piece({ ...p, world }));
 		return func(piece, world);
 	} catch (e) {
+		console.error(e);
 		return { error: String(e) };
 	}
 }

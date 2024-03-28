@@ -15,6 +15,7 @@ export class Piece {
 	x: number;
 	y: number;
 	memory: Record<string, any>;
+	world: World;
 
 	constructor(obj: {
 		id: string;
@@ -24,6 +25,7 @@ export class Piece {
 		x: number;
 		y: number;
 		memory: Record<string, any>;
+		world: World;
 	}) {
 		this.id = obj.id;
 		this.owner = obj.owner;
@@ -32,6 +34,7 @@ export class Piece {
 		this.x = obj.x;
 		this.y = obj.y;
 		this.memory = obj.memory;
+		this.world = obj.world;
 	}
 
 	toJSON() {
@@ -42,7 +45,8 @@ export class Piece {
 			gender: this.gender,
 			x: this.x,
 			y: this.y,
-			memory: this.memory
+			memory: this.memory,
+			world: this.world
 		};
 	}
 
@@ -54,10 +58,10 @@ export class Piece {
 		return Math.max(Math.abs(this.x - piece.x), Math.abs(this.y - piece.y));
 	}
 
-	findClosestPiece(world: World) {
+	findClosestPiece() {
 		let minDistance = Infinity;
 		let closestPiece: Piece | null = null;
-		for (const piece of world.pieces) {
+		for (const piece of this.world.pieces) {
 			if (piece.id === this.id) continue;
 			const distance = this.distanceTo(piece);
 			if (distance < minDistance) {
@@ -72,7 +76,8 @@ export class Piece {
 		return this.distanceTo(piece) === 1;
 	}
 
-	availableMoves(world: World) {
+	availableMoves() {
+		const world = this.world;
 		const moves: Move[] = [];
 		for (const dx of [-1, 0, 1]) {
 			for (const dy of [-1, 0, 1]) {
@@ -94,28 +99,23 @@ export class Piece {
 		return moves;
 	}
 
-	moveTowards(piece: Piece, action: Action, world?: World): Move {
+	moveTowards(piece: Piece, action: Action): Move {
 		if (this.isAdjacentTo(piece)) {
 			return { dx: (piece.x - this.x) as 0, dy: (piece.y - this.y) as 0, action };
 		}
-		if (world) {
-			const moves = this.availableMoves(world);
-			let minDistance = Infinity;
-			let bestMove: Move = { dx: 0, dy: 0, action: 'move' };
-			for (const move of moves) {
-				const x = this.x + move.dx;
-				const y = this.y + move.dy;
-				const distance = Math.abs(piece.x - x) + Math.abs(piece.y - y);
-				if (distance < minDistance) {
-					minDistance = distance;
-					bestMove = move;
-				}
+		const moves = this.availableMoves();
+		let minDistance = Infinity;
+		let bestMove: Move = { dx: 0, dy: 0, action: 'move' };
+		for (const move of moves) {
+			const x = this.x + move.dx;
+			const y = this.y + move.dy;
+			const distance = Math.abs(piece.x - x) + Math.abs(piece.y - y);
+			if (distance < minDistance) {
+				minDistance = distance;
+				bestMove = move;
 			}
-			return bestMove;
 		}
-		const dx = piece.x > this.x ? 1 : piece.x < this.x ? -1 : 0;
-		const dy = piece.y > this.y ? 1 : piece.y < this.y ? -1 : 0;
-		return { dx, dy, action: 'move' };
+		return bestMove;
 	}
 }
 

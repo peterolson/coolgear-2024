@@ -8,6 +8,7 @@
  * @property {number} x - x-coordinate of the piece.
  * @property {number} y - y-coordinate of the piece.
  * @property {Record<string, any>} memory - Memory of the piece. Can be used to store any data.
+ * @property {World} world - The world the piece is in.
  */
 declare class Piece {
 	/**
@@ -38,6 +39,10 @@ declare class Piece {
 	 * Memory of the piece. Can be used to store any data.
 	 */
 	memory: Record<string, any>;
+	/**
+	 * The world the piece is in.
+	 */
+	world: World;
 
 	/**
 	 * Creates a new piece.
@@ -51,6 +56,7 @@ declare class Piece {
 		x: number;
 		y: number;
 		memory: Record<string, any>;
+		world: World;
 	}): Piece;
 
 	/**
@@ -64,6 +70,7 @@ declare class Piece {
 		x: number;
 		y: number;
 		memory: Record<string, any>;
+		world: World;
 	};
 
 	/**
@@ -81,10 +88,9 @@ declare class Piece {
 
 	/**
 	 * Finds the closest piece in the world.
-	 * @param {World} world - The world to search for the closest piece in.
 	 * @returns {Piece | null} The closest piece, or null if no other pieces are in the world.
 	 */
-	findClosestPiece(world: World): Piece | null;
+	findClosestPiece(): Piece | null;
 
 	/**
 	 * Checks if a piece is adjacent to another piece.
@@ -95,19 +101,17 @@ declare class Piece {
 
 	/**
 	 * Gets the moves available to the piece.
-	 * @param {World} world - The world the piece is in.
 	 * @returns {Move[]} Array of moves available to the piece.
 	 */
-	availableMoves(world: World): Move[];
+	availableMoves(): Move[];
 
 	/**
 	 * Finds the shortest move towards another piece.
 	 * @param {Piece} piece - The other piece to move towards.
 	 * @param {Action} action - Action to take once this piece is adjacent to the other piece.
-	 * @param {World} [world] - The world the piece is in.
 	 * @returns {Move} The move to take.
 	 */
-	moveTowards(piece: Piece, action: Action, world?: World): Move;
+	moveTowards(piece: Piece, action: Action): Move;
 }
 
 /**

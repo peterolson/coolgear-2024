@@ -5,48 +5,51 @@ import { Piece } from '$lib/piece';
 export const generator: WorldGenerator = (seed, user) => {
 	const r = new RandomNumberGenerator(seed);
 	const size = 20;
-	const pieces: Piece[] = [];
+
+	const world = new World({
+		size,
+		pieces: [],
+		randomSeed: seed,
+		victoryCondition: (w) => w.pieces.filter((p) => p.type === 'food').length === 0
+	});
 
 	const occupiedCoords = new Set<string>();
 
 	const humanCoord = r.nextCoordinate(size);
 	occupiedCoords.add(`${humanCoord.x},${humanCoord.y}`);
-	pieces.push(
+	world.pieces.push(
 		new Piece({
 			id: r.nextUUID(),
 			owner: user,
 			type: 'human',
 			gender: 'male',
 			...humanCoord,
-			memory: {}
+			memory: {},
+			world
 		})
 	);
 
-	while (pieces.length < 20) {
+	while (world.pieces.length < 20) {
 		const coord = r.nextCoordinate(size);
 		const coordKey = `${coord.x},${coord.y}`;
 		if (occupiedCoords.has(coordKey)) {
 			continue;
 		}
 		occupiedCoords.add(coordKey);
-		pieces.push(
+		world.pieces.push(
 			new Piece({
 				id: r.nextUUID(),
 				owner: 'map',
 				type: 'food',
 				gender: r.nextArrayElement(['male', 'female']),
 				...coord,
-				memory: {}
+				memory: {},
+				world
 			})
 		);
 	}
 
-	return new World({
-		size,
-		pieces,
-		randomSeed: seed,
-		victoryCondition: (w) => w.pieces.filter((p) => p.type === 'food').length === 0
-	});
+	return world;
 };
 
 export const defaultCode = `

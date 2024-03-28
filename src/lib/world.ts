@@ -48,7 +48,11 @@ export async function evaluateFunction(
 		moveCount: number;
 	}
 ) {
-	const data = (await awaitResponse('evaluateFunction', { user, piece, world })) as {
+	const data = (await awaitResponse('evaluateFunction', {
+		user,
+		piece: { ...piece, world: null },
+		world: { ...world, pieces: world.pieces.map((p) => ({ ...p, world: null })) }
+	})) as {
 		move: Move | { error: string };
 	};
 	return data.move;
@@ -89,6 +93,7 @@ export class World {
 			if (type === 'info') {
 				this.log(message);
 			} else if (type === 'error') {
+				console.error(message);
 				this.error(message);
 			}
 		});
@@ -199,7 +204,8 @@ export class World {
 					hasMoved = true;
 				}
 			} catch (e) {
-				this.error('error evaluating function', logPiece);
+				console.error(e);
+				this.error(`error evaluating function: ${String(e)}`, logPiece);
 			}
 		}
 		return { hasMoved };

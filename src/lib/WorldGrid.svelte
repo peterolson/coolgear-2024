@@ -18,6 +18,8 @@
 	function resetWorld() {
 		world = generator(randomSeed, user.displayName);
 	}
+
+	let isRunning = false;
 </script>
 
 <svelte:head>
@@ -56,6 +58,7 @@
 			</label>
 			<button
 				on:click={resetWorld}
+				disabled={isRunning}
 				use:shortcut={{ control: true, code: 'KeyR' }}
 				title="Hotkey: Ctrl + R"
 			>
@@ -63,7 +66,15 @@
 			</button>
 		</div>
 	</div>
-	<CodeEditor {defaultCode} {lib} user={user.displayName} {level} bind:codeVersions bind:world />
+	<CodeEditor
+		{defaultCode}
+		{lib}
+		user={user.displayName}
+		{level}
+		bind:codeVersions
+		bind:world
+		bind:isRunning
+	/>
 </main>
 
 <style>

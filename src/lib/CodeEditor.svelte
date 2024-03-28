@@ -94,7 +94,7 @@
 		return response.outputFiles[0].text;
 	}
 
-	let isRunning = false;
+	export let isRunning = false;
 
 	async function runStep() {
 		isRunning = true;

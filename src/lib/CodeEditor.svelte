@@ -23,7 +23,7 @@
 	let editor: m.editor.IStandaloneCodeEditor;
 	let model: m.editor.ITextModel;
 
-	let codeText = '';
+	let codeText = codeVersions[0]?.code ?? defaultCode;
 	let codeHasChanged = false;
 
 	let selectVersionChanged = false;
@@ -141,6 +141,9 @@
 		scrollToBottom();
 		isRunning = false;
 		isStopped = false;
+		if (world.isSolved() && codeHasChanged) {
+			save();
+		}
 	}
 
 	let activeTab = 'code';
@@ -281,7 +284,7 @@
 			</select>
 		</label>
 
-		{#if world.isSolved()}
+		{#if world.isSolved() && !codeHasChanged}
 			<span>
 				<button on:click={submitSolution}>Submit solution</button>
 			</span>
@@ -290,7 +293,17 @@
 </section>
 
 {#if isSubmitting}
-	<SubmitSolution bind:world {generator} {run} {user} {scoring} bind:delayMs />
+	<SubmitSolution
+		bind:world
+		{generator}
+		{run}
+		{user}
+		{scoring}
+		{level}
+		{codeText}
+		bind:delayMs
+		onClose={() => (isSubmitting = false)}
+	/>
 {/if}
 
 <style>

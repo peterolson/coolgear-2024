@@ -18,8 +18,8 @@ export const POST: RequestHandler = async ({ cookies, params, request }) => {
 		return new Response('level not found', { status: 404 });
 	}
 	const levelId = levelData.id;
-	const { code } = await request.json();
+	const { code, scores } = await request.json();
 	const db = await DB.getInstance();
-	await db.saveCodeVersion(levelId, user._id, code);
+	await db.submitCode(levelId, code, user._id, scores);
 	return new Response(null, { status: 200 });
 };

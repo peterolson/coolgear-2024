@@ -8,6 +8,9 @@
 	export let run: () => Promise<void>;
 	export let user: string;
 	export let scoring: WorldScoring;
+	export let level: number;
+	export let codeText: string;
+	export let onClose: () => void;
 
 	let results: {
 		seed: number;
@@ -48,13 +51,28 @@
 				break;
 			}
 		}
+		if (solvedAll) {
+			await fetch(`/levels/${level}/submit`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ code: codeText, scores: results.map((r) => r.score) })
+			});
+		}
 		inProgress = false;
 	});
 </script>
 
 <div class="backdrop">
 	<dialog open={true}>
-		<h3>Submitting solution...</h3>
+		<h3>
+			{#if inProgress}
+				⌛ Submitting solution...
+			{:else if solvedAll}
+				✅ Solution submitted!
+			{:else}❌ Failed to solve seed {currentSeed}{/if}
+		</h3>
 		{#if inProgress}
 			<p>Running solution for seed {currentSeed}...</p>
 		{:else if solvedAll}
@@ -63,6 +81,9 @@
 			<p>Failed to solve seed {currentSeed}.</p>
 		{/if}
 		<p>Average {scoring.title}: <strong>{(totalScore / currentSeed).toFixed(3)}</strong></p>
+		{#if !inProgress}
+			<button on:click={onClose}>Close</button>
+		{/if}
 		<table>
 			<thead>
 				<tr>

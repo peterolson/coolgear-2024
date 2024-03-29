@@ -80,7 +80,7 @@
 		{:else}
 			<p>Failed to solve seed {currentSeed}.</p>
 		{/if}
-		<p>Average {scoring.title}: <strong>{(totalScore / currentSeed).toFixed(3)}</strong></p>
+		<p>Average {scoring.title}: <strong>{(totalScore / results.length).toFixed(3)}</strong></p>
 		{#if !inProgress}
 			<button on:click={onClose}>Close</button>
 		{/if}

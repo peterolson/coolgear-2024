@@ -114,4 +114,29 @@ export class DB {
 			submittedAt
 		});
 	}
+
+	async getLeaderBoard(levelId: string, sortDirection: 1 | -1) {
+		// find top submission for each user on the level
+		return (await this.submissionCollection
+			.aggregate([
+				{ $match: { levelId } },
+				{ $sort: { avgScore: sortDirection } },
+				{
+					$group: {
+						_id: '$userId',
+						avgScore: { $first: '$avgScore' },
+						submittedAt: { $first: '$submittedAt' },
+						code: { $first: '$code' }
+					}
+				}
+			])
+			.toArray()) as { _id: string; avgScore: number; submittedAt: Date; code: string }[];
+	}
+
+	async getUserNames() {
+		const users = await this.userCollection
+			.find({}, { projection: { _id: 1, displayName: 1 } })
+			.toArray();
+		return Object.fromEntries(users.map((user) => [user._id, user.displayName]));
+	}
 }

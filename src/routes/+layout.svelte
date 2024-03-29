@@ -6,6 +6,7 @@
 <nav>
 	<a href="/" class="home"><b>Cool</b><i>Gear</i> 2024</a>
 	<a href="/levels">Levels</a>
+	<a href="/leaderboard">Leaderboard</a>
 	<span>
 		{#if data.user}
 			Logged in as <strong>{data.user.displayName}</strong>

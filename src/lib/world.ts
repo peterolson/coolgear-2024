@@ -24,8 +24,14 @@ async function awaitResponse(type: string, args: Record<string, any>) {
 			listeners.delete(id);
 			console.error('timeout! took longer than 1s to respond');
 			worker.terminate();
+			const messageListener = worker.onmessage;
 			worker = new Worker(new URL('$lib/codeWorker', import.meta.url), { type: 'module' });
-			resolve(null);
+			worker.onmessage = messageListener;
+			resolve({
+				move: {
+					error: 'timeout! took longer than 1s to respond'
+				}
+			});
 		}, 1000);
 		listeners.set(id, (e) => {
 			resolve(e);
@@ -58,6 +64,24 @@ export async function evaluateFunction(
 	return data.move;
 }
 
+const getCircularReplacer = () => {
+	const seen = new WeakSet();
+	return (key: string, value: unknown) => {
+		if (typeof value === 'object' && value !== null) {
+			if ('world' in value)
+				return {
+					...value,
+					world: undefined
+				};
+			if (seen.has(value)) {
+				return;
+			}
+			seen.add(value);
+		}
+		return value;
+	};
+};
+
 export class World {
 	size: number;
 	pieces: Piece[];
@@ -84,12 +108,12 @@ export class World {
 		this.pieces = obj.pieces;
 		this.r = new RandomNumberGenerator(obj.randomSeed);
 		this.code = {};
-		this.initialState = JSON.stringify(obj);
+		this.initialState = JSON.stringify(obj, getCircularReplacer());
 		this.logs = [];
 		this.moveCount = 0;
 		listeners.set('log', (e) => {
 			const { type, args } = e;
-			const message = args.map((a: any) => JSON.stringify(a, null, 2)).join(' ');
+			const message = args.map((a: any) => JSON.stringify(a, getCircularReplacer(), 2)).join(' ');
 			if (type === 'info') {
 				this.log(message);
 			} else if (type === 'error') {

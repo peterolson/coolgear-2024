@@ -110,6 +110,8 @@
 	.grid-cell {
 		width: 100%;
 		aspect-ratio: 1 / 1;
+		border: 1px dotted rgba(0, 0, 255, 0.1);
+		box-sizing: border-box;
 	}
 
 	input {

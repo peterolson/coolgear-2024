@@ -14,7 +14,6 @@ export class Piece {
 	gender: Gender;
 	x: number;
 	y: number;
-	memory: Record<string, any>;
 	world: World;
 
 	constructor(obj: {
@@ -24,7 +23,6 @@ export class Piece {
 		gender: Gender;
 		x: number;
 		y: number;
-		memory: Record<string, any>;
 		world: World;
 	}) {
 		this.id = obj.id;
@@ -33,7 +31,6 @@ export class Piece {
 		this.gender = obj.gender;
 		this.x = obj.x;
 		this.y = obj.y;
-		this.memory = obj.memory;
 		this.world = obj.world;
 	}
 
@@ -44,14 +41,12 @@ export class Piece {
 			type: this.type,
 			gender: this.gender,
 			x: this.x,
-			y: this.y,
-			memory: this.memory,
-			world: this.world
+			y: this.y
 		};
 	}
 
 	clone() {
-		return new Piece(this.toJSON());
+		return new Piece({ ...this.toJSON(), world: this.world });
 	}
 
 	distanceTo(piece: Piece) {

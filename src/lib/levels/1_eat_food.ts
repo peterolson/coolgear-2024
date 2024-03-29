@@ -24,12 +24,11 @@ export const generator: WorldGenerator = (seed, user) => {
 			type: 'human',
 			gender: 'male',
 			...humanCoord,
-			memory: {},
 			world
 		})
 	);
 
-	while (world.pieces.length < 20) {
+	while (world.pieces.length <= 20) {
 		const coord = r.nextCoordinate(size);
 		const coordKey = `${coord.x},${coord.y}`;
 		if (occupiedCoords.has(coordKey)) {
@@ -43,7 +42,6 @@ export const generator: WorldGenerator = (seed, user) => {
 				type: 'food',
 				gender: r.nextArrayElement(['male', 'female']),
 				...coord,
-				memory: {},
 				world
 			})
 		);
@@ -56,7 +54,7 @@ export const defaultCode = `
 // The goal of this level is to eat all the food on the map.
 // Complete the 'nextMove' function below to tell your character what to do.
 
-function nextMove(self : Piece, world: World) : Move {
+function nextMove(self : Piece, world: World, r: RandomNumberGenerator) : Move {
     // Your code goes here
     return {
         dx: 1,

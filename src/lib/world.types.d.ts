@@ -7,7 +7,6 @@
  * @property {string} owner - Who controls the piece. Uses a user's name or 'map'.
  * @property {number} x - x-coordinate of the piece.
  * @property {number} y - y-coordinate of the piece.
- * @property {Record<string, any>} memory - Memory of the piece. Can be used to store any data.
  * @property {World} world - The world the piece is in.
  */
 declare class Piece {
@@ -36,10 +35,6 @@ declare class Piece {
 	 */
 	y: number;
 	/**
-	 * Memory of the piece. Can be used to store any data.
-	 */
-	memory: Record<string, any>;
-	/**
 	 * The world the piece is in.
 	 */
 	world: World;
@@ -55,7 +50,6 @@ declare class Piece {
 		gender: Gender;
 		x: number;
 		y: number;
-		memory: Record<string, any>;
 		world: World;
 	}): Piece;
 
@@ -69,8 +63,6 @@ declare class Piece {
 		gender: Gender;
 		x: number;
 		y: number;
-		memory: Record<string, any>;
-		world: World;
 	};
 
 	/**
@@ -162,4 +154,98 @@ declare class World {
 	 * Number of moves made so far.
 	 */
 	moveCount: number;
+}
+
+declare class RandomNumberGenerator {
+	/**
+	 * Creates a new random number generator.
+	 * @param {string} seed - Seed for the random number generator.
+	 */
+	constructor(seed: string);
+
+	/**
+	 * Generates a random number between 0 and 1.
+	 * @returns {number} Random number between 0 and 1.
+	 */
+	nextRand(): number;
+
+	/**
+	 * Generates a random number between two values.
+	 * @param {number} inclusiveMin - Minimum value, inclusive.
+	 * @param {number} exclusiveMax - Maximum value, exclusive.
+	 * @returns {number} Random number between the two values.
+	 */
+	nextRandBetween(inclusiveMin: number, exclusiveMax: number): number;
+
+	/**
+	 * Generates a random number between two values, inclusive.
+	 * @param {number} min - Minimum value, inclusive.
+	 * @param {number} max - Maximum value, inclusive.
+	 * @returns {number} Random number between the two values.
+	 */
+	nextRandBetweenInclusive(min: number, max: number): number;
+
+	/**
+	 * Generates a random boolean value.
+	 * @returns {boolean} Random boolean value.
+	 */
+	nextRandBool(): boolean;
+
+	/**
+	 * Generates a random integer.
+	 * @param {number} exclusiveMax - Maximum value, exclusive.
+	 * @returns {number} Random integer.
+	 */
+	nextInt(exclusiveMax: number): number;
+
+	/**
+	 * Generates a random integer between two values.
+	 * @param {number} inclusiveMin - Minimum value, inclusive.
+	 * @param {number} exclusiveMax - Maximum value, exclusive.
+	 * @returns {number} Random integer between the two values.
+	 */
+	nextIntBetween(inclusiveMin: number, exclusiveMax: number): number;
+
+	/**
+	 * Generates a random integer between two values, inclusive.
+	 * @param {number} min - Minimum value, inclusive.
+	 * @param {number} max - Maximum value, inclusive.
+	 * @returns {number} Random integer between the two values.
+	 */
+	nextIntBetweenInclusive(min: number, max: number): number;
+
+	/**
+	 * Gets a random element from an array.
+	 * @param {T[]} arr - Array to get a random element from.
+	 * @returns {T} Random element from the array.
+	 */
+	nextArrayElement<T>(arr: T[]): T;
+
+	/**
+	 * Generates a random coordinate.
+	 * @param {number} size - Size of the coordinate.
+	 * @returns {{x: number, y: number}} Random coordinate.
+	 */
+	nextCoordinate(size: number): { x: number; y: number };
+
+	/**
+	 * Generates a random UUID.
+	 * @returns {string} Random UUID.
+	 */
+	nextUUID(): string;
+
+	/**
+	 * Shuffles an array.
+	 * @param {T[]} arr - Array to shuffle.
+	 * @returns {T[]} Shuffled array.
+	 */
+	toShuffled<T>(arr: T[]): T[];
+
+	/**
+	 * Gets a random element from an array, weighted by a set of weights.
+	 * @param {T[]} arr - Array to get a random element from.
+	 * @param {number[] | ((item: T) => number)} weights - Array of weights or function to get weights from elements.
+	 * @returns {T} Random element from the array.
+	 */
+	nextWeightedElement<T>(arr: T[], weights: number[] | ((item: T) => number)): T;
 }

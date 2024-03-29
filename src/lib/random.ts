@@ -81,4 +81,17 @@ export class RandomNumberGenerator {
 		}
 		return copy;
 	}
+
+	public nextWeightedElement<T>(arr: T[], weights: number[] | ((item: T) => number)): T {
+		const arrWeights = typeof weights === 'function' ? arr.map(weights) : weights;
+		const totalWeight = arrWeights.reduce((acc, w) => acc + w, 0);
+		let r = this.nextRand() * totalWeight;
+		for (let i = 0; i < arr.length; i++) {
+			r -= arrWeights[i];
+			if (r <= 0) {
+				return arr[i];
+			}
+		}
+		return arr[arr.length - 1];
+	}
 }

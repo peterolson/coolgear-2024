@@ -222,7 +222,7 @@
 				{#if log.move}
 					{` -> (${log.move.action}, ${log.move.dx === 1 ? '+1' : log.move.dx}, ${log.move.dy}): `}
 				{/if}
-				{log.message}
+				<span class="log-message">{log.message}</span>
 				{#if log.recipient}
 					<img
 						src={`/pieces/${log.recipient.type}${log.recipient.gender || ''}.svg`}
@@ -362,6 +362,10 @@
 	.logs .log img {
 		width: 16px;
 		height: 16px;
+	}
+
+	.log-message {
+		white-space: pre-wrap;
 	}
 
 	.error-log {

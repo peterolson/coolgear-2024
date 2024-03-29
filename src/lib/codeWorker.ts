@@ -1,4 +1,5 @@
 import { Piece, type World } from './piece';
+import { RandomNumberGenerator } from './random';
 
 function createFunction(code: string) {
 	const console = {
@@ -18,10 +19,15 @@ function createFunction(code: string) {
 	}
 }
 
-const functionMap = new Map<string, (self: Piece, world: World) => Move>();
+const functionMap = new Map<
+	string,
+	(self: Piece, world: World, r: RandomNumberGenerator) => Move
+>();
+const randomMap = new Map<string, RandomNumberGenerator>();
 
 function setFunction(user: string, code: string) {
 	functionMap.set(user, createFunction(code));
+	randomMap.set(user, new RandomNumberGenerator(user + code));
 }
 
 function evaluateFunction(user: string, piece: Piece, world: World) {
@@ -29,10 +35,14 @@ function evaluateFunction(user: string, piece: Piece, world: World) {
 	if (!func) {
 		return null;
 	}
+	const rand = randomMap.get(user);
+	if (!rand) {
+		return null;
+	}
 	try {
 		piece = new Piece({ ...piece, world });
 		world.pieces = world.pieces.map((p) => new Piece({ ...p, world }));
-		return func(piece, world);
+		return func(piece, world, rand);
 	} catch (e) {
 		console.error(e);
 		return { error: String(e) };

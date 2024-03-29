@@ -23,12 +23,40 @@
 		<tbody>
 			{#each leaderboard as { _id, avgScore, submittedAt }, i}
 				<tr>
-					<td>{i + 1}</td>
-					<td>{userNames[_id]}</td>
-					<td>{avgScore.toFixed(4)}</td>
-					<td>{submittedAt.toLocaleString()}</td>
+					<td class="rank">{i + 1}</td>
+					<td class="user">{userNames[_id]}</td>
+					<td class="score">{avgScore.toFixed(4)}</td>
+					<td class="submitted">{submittedAt.toLocaleString()}</td>
 				</tr>
 			{/each}
 		</tbody>
 	</table>
 {/each}
+
+<style>
+	table {
+		width: 100%;
+		border-collapse: collapse;
+	}
+
+	th,
+	td {
+		border: 1px solid #ddd;
+		padding: 8px;
+	}
+
+	th {
+		background-color: #f2f2f2;
+	}
+
+	tr:nth-child(even) {
+		background-color: #f2f2f2;
+	}
+
+	td.rank {
+		text-align: right;
+	}
+	td {
+		text-align: center;
+	}
+</style>

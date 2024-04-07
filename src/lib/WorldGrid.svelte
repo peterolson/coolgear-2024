@@ -21,6 +21,14 @@
 	}
 
 	let isRunning = false;
+
+	// filter generator from hex code: https://codepen.io/sosuke/pen/Pjoqqp
+	let colorFilters = {
+		map: '',
+		[user.displayName]:
+			'filter: invert(18%) sepia(38%) saturate(5630%) hue-rotate(230deg) brightness(80%) contrast(141%)', // blue
+		boss: 'filter: invert(13%) sepia(95%) saturate(3553%) hue-rotate(355deg) brightness(84%) contrast(120%);' // red
+	};
 </script>
 
 <svelte:head>
@@ -37,6 +45,7 @@
 			{#each Array(world.size) as _, y}
 				{#each Array(world.size) as _, x}
 					{@const piece = world.pieces.find((p) => p.x === x && p.y === y)}
+					{@const colorFilter = piece ? colorFilters[piece.owner] : colorFilters.map}
 					{#if piece}
 						<img
 							class="grid-cell"
@@ -44,7 +53,8 @@
 							alt="piece"
 							width="100"
 							height="100"
-							title={`${piece.owner} ${piece.type} ${piece.gender || ''} (${piece.x}, ${piece.y})`}
+							title={`${piece.owner} ${piece.type} ${piece.gender || ''} (${piece.x}, ${piece.y}) ${piece.hitpoints}/${piece.maxHitpoints}HP ${piece.attack} attack`}
+							style={colorFilter}
 						/>
 					{:else}
 						<div class="grid-cell"></div>

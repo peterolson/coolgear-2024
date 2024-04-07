@@ -17,6 +17,9 @@ export class Piece {
 	x: number;
 	y: number;
 	world: World;
+	hitpoints: number;
+	maxHitpoints: number;
+	attack: number;
 
 	constructor(obj: {
 		id: string;
@@ -26,6 +29,9 @@ export class Piece {
 		x: number;
 		y: number;
 		world: World;
+		hitpoints?: number;
+		maxHitpoints?: number;
+		attack?: number;
 	}) {
 		this.id = obj.id;
 		this.owner = obj.owner;
@@ -34,6 +40,9 @@ export class Piece {
 		this.x = obj.x;
 		this.y = obj.y;
 		this.world = obj.world;
+		this.hitpoints = obj.hitpoints ?? 10;
+		this.maxHitpoints = obj.maxHitpoints ?? 10;
+		this.attack = obj.attack ?? 3;
 	}
 
 	toJSON() {
@@ -43,7 +52,10 @@ export class Piece {
 			type: this.type,
 			gender: this.gender,
 			x: this.x,
-			y: this.y
+			y: this.y,
+			hitpoints: this.hitpoints,
+			maxHitpoints: this.maxHitpoints,
+			attack: this.attack
 		};
 	}
 

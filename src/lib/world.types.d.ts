@@ -38,6 +38,18 @@ declare class Piece {
 	 * The world the piece is in.
 	 */
 	world: World;
+	/**
+	 * Hitpoints of the piece.
+	 */
+	hitpoints: number;
+	/**
+	 * Maximum hitpoints of the piece.
+	 */
+	maxHitpoints: number;
+	/**
+	 * Attack power of the piece.
+	 */
+	attack: number;
 
 	/**
 	 * Creates a new piece.
@@ -51,6 +63,9 @@ declare class Piece {
 		x: number;
 		y: number;
 		world: World;
+		hitpoints?: number;
+		maxHitpoints?: number;
+		attack?: number;
 	}): Piece;
 
 	/**
@@ -63,6 +78,9 @@ declare class Piece {
 		gender: Gender;
 		x: number;
 		y: number;
+		hitpoints: number;
+		maxHitpoints: number;
+		attack: number;
 	};
 
 	/**

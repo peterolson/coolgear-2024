@@ -149,6 +149,8 @@
 	let activeTab = 'code';
 
 	async function save() {
+		await editor.getAction('editor.action.formatDocument')?.run();
+		codeText = editor.getValue();
 		codeHasChanged = false;
 		const response = await fetch(`/levels/${level}/save`, {
 			method: 'POST',

@@ -1,3 +1,5 @@
+import type { Coord } from './world';
+
 export type PieceType = 'human' | 'food';
 export type Gender = 'male' | 'female' | undefined;
 
@@ -49,8 +51,12 @@ export class Piece {
 		return new Piece({ ...this.toJSON(), world: this.world });
 	}
 
-	distanceTo(piece: Piece) {
-		return Math.max(Math.abs(this.x - piece.x), Math.abs(this.y - piece.y));
+	static distance(a: Piece | Coord, b: Piece | Coord) {
+		return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
+	}
+
+	distanceTo(piece: Piece | Coord) {
+		return Piece.distance(this, piece);
 	}
 
 	findClosestPiece() {
@@ -67,34 +73,52 @@ export class Piece {
 		return closestPiece;
 	}
 
-	isAdjacentTo(piece: Piece) {
+	findClosestPieces(n: number) {
+		const pieces = this.world.pieces.filter((p) => p.id !== this.id);
+		pieces.sort((a, b) => this.distanceTo(a) - this.distanceTo(b));
+		return pieces.slice(0, n);
+	}
+
+	isAdjacentTo(piece: Piece | Coord) {
 		return this.distanceTo(piece) === 1;
 	}
 
-	availableMoves() {
-		const world = this.world;
-		const moves: Move[] = [];
-		for (const dx of [-1, 0, 1]) {
-			for (const dy of [-1, 0, 1]) {
+	getEmptyAdjacentCoords(): Coord[] {
+		const coords: Coord[] = [];
+		for (const dx of [0, 1, -1]) {
+			for (const dy of [0, 1, -1]) {
 				if (dx === 0 && dy === 0) {
 					continue;
 				}
 				const x = this.x + dx;
 				const y = this.y + dy;
-				if (x < 0 || x >= world.size || y < 0 || y >= world.size) {
+				if (x < 0 || x >= this.world.size || y < 0 || y >= this.world.size) {
 					continue;
 				}
-				const otherPieces = world.pieces.filter((p) => p.id !== this.id);
+				const otherPieces = this.world.pieces.filter((p) => p.id !== this.id);
 				if (otherPieces.some((p) => p.x === x && p.y === y)) {
 					continue;
 				}
-				moves.push({ dx: dx as 0, dy: dy as 0, action: 'move' });
+				coords.push({ x, y });
 			}
+		}
+		return coords;
+	}
+
+	availableMoves() {
+		const emptyAdjacentCoords = this.getEmptyAdjacentCoords();
+		const moves: Move[] = [];
+		for (const { x, y } of emptyAdjacentCoords) {
+			moves.push({
+				dx: (x - this.x) as -1 | 0 | 1,
+				dy: (y - this.y) as -1 | 0 | 1,
+				action: 'move'
+			});
 		}
 		return moves;
 	}
 
-	moveTowards(piece: Piece, action: Action): Move {
+	moveTowards(piece: Piece | Coord, action: Action, secondaryDestination?: Piece | Coord): Move {
 		if (this.isAdjacentTo(piece)) {
 			return { dx: (piece.x - this.x) as 0, dy: (piece.y - this.y) as 0, action };
 		}
@@ -104,10 +128,24 @@ export class Piece {
 		for (const move of moves) {
 			const x = this.x + move.dx;
 			const y = this.y + move.dy;
-			const distance = Math.abs(piece.x - x) + Math.abs(piece.y - y);
+			const distance = Piece.distance({ x, y }, piece);
 			if (distance < minDistance) {
 				minDistance = distance;
 				bestMove = move;
+			}
+		}
+		if (secondaryDestination) {
+			let minSecondaryDistance = Infinity;
+			for (const move of moves) {
+				const x = this.x + move.dx;
+				const y = this.y + move.dy;
+				const distance = Piece.distance({ x, y }, piece);
+				if (distance > minDistance) continue;
+				const secondaryDistance = Piece.distance({ x, y }, secondaryDestination);
+				if (secondaryDistance < minSecondaryDistance) {
+					minSecondaryDistance = secondaryDistance;
+					bestMove = move;
+				}
 			}
 		}
 		return bestMove;

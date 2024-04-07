@@ -72,11 +72,19 @@ declare class Piece {
 	clone(): Piece;
 
 	/**
+	 * Calculates the distance between two pieces.
+	 * @param {Piece | Coord} a - The first piece.
+	 * @param {Piece | Coord} b - The second piece.
+	 * @returns {number} The distance between the two pieces.
+	 */
+	static distance(a: Piece | Coord, b: Piece | Coord): number;
+
+	/**
 	 * Calculates the distance to another piece.
 	 * @param {Piece} piece - The other piece to calculate the distance to.
 	 * @returns {number} The distance to the other piece.
 	 */
-	distanceTo(piece: Piece): number;
+	distanceTo(piece: Piece | Coord): number;
 
 	/**
 	 * Finds the closest piece in the world.
@@ -85,11 +93,24 @@ declare class Piece {
 	findClosestPiece(): Piece | null;
 
 	/**
+	 * Finds the *n* closest pieces in the world, sorted by distance.
+	 * @param {number} n - The number of closest pieces to find.
+	 * @returns {Piece[]} Array of the closest pieces.
+	 */
+	findClosestPieces(n: number): Piece[];
+
+	/**
 	 * Checks if a piece is adjacent to another piece.
-	 * @param {Piece} piece - The other piece to check adjacency to.
+	 * @param {Piece | Coord} piece - The other piece to check adjacency to.
 	 * @returns {boolean} True if the pieces are adjacent, false otherwise.
 	 */
-	isAdjacentTo(piece: Piece): boolean;
+	isAdjacentTo(piece: Piece | Coord): boolean;
+
+	/**
+	 * Gets the empty spaces adjacent to the piece.
+	 * @returns {Coord[]} Array of coordinates of adjacent spaces.
+	 */
+	getEmptyAdjacentCoords(): Coord[];
 
 	/**
 	 * Gets the moves available to the piece.
@@ -99,11 +120,12 @@ declare class Piece {
 
 	/**
 	 * Finds the shortest move towards another piece.
-	 * @param {Piece} piece - The other piece to move towards.
+	 * @param {Piece | Coord} piece - The other piece to move towards.
 	 * @param {Action} action - Action to take once this piece is adjacent to the other piece.
+	 * @param  {Piece | Coord} [secondaryDestination] - (optional) The piece to move towards after reaching the first piece.
 	 * @returns {Move} The move to take.
 	 */
-	moveTowards(piece: Piece, action: Action): Move;
+	moveTowards(piece: Piece | Coord, action: Action, secondaryDestination?: Piece | Coord): Move;
 }
 
 /**
@@ -130,6 +152,11 @@ declare type Move = {
  * Action to take during a turn.
  */
 declare type Action = 'move' | 'eat' | 'reproduce';
+
+/**
+ * x, y coordinates of a place in the world.
+ */
+declare type Coord = { x: number; y: number };
 
 declare function log(...args: any[]): void;
 
@@ -226,7 +253,7 @@ declare class RandomNumberGenerator {
 	 * @param {number} size - Size of the coordinate.
 	 * @returns {{x: number, y: number}} Random coordinate.
 	 */
-	nextCoordinate(size: number): { x: number; y: number };
+	nextCoordinate(size: number): Coord;
 
 	/**
 	 * Generates a random UUID.

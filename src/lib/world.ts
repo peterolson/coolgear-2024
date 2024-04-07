@@ -171,12 +171,12 @@ export class World {
 					moveCount: this.moveCount
 				};
 				const move = await evaluateFunction(piece.owner, piece, world);
-				if ('error' in move) {
-					this.error(`error evaluating function: ${move.error}`, logPiece);
-					continue;
-				}
 				if (!move) {
 					this.error('move is undefined', logPiece);
+					continue;
+				}
+				if ('error' in move) {
+					this.error(`error evaluating function: ${move.error}`, logPiece);
 					continue;
 				}
 				if (move.dx !== 0 && move.dx !== 1 && move.dx !== -1) {

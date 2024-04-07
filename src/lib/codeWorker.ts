@@ -15,7 +15,11 @@ function createFunction(code: string) {
 		return eval(`(() => {${code}; return nextMove;})()`);
 	} catch (e) {
 		console.error(e);
-		return () => ({ error: String(e) });
+		let stack = '';
+		if (e instanceof Error) {
+			stack = `\n${e.stack || ''}`;
+		}
+		return () => ({ error: String(e) + stack });
 	}
 }
 
@@ -45,7 +49,11 @@ function evaluateFunction(user: string, piece: Piece, world: World) {
 		return func(piece, world, rand);
 	} catch (e) {
 		console.error(e);
-		return { error: String(e) };
+		let stack = '';
+		if (e instanceof Error) {
+			stack = `\n${e.stack || ''}`;
+		}
+		return { error: String(e) + stack };
 	}
 }
 

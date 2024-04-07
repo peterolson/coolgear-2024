@@ -74,13 +74,15 @@
 			{:else}❌ Failed to solve seed {currentSeed}{/if}
 		</h3>
 		{#if inProgress}
-			<p>Running solution for seed {currentSeed}...</p>
+			<p>Running solution for seed {Math.min(currentSeed, 100)}...</p>
 		{:else if solvedAll}
 			<p>All seeds solved!</p>
 		{:else}
 			<p>Failed to solve seed {currentSeed}.</p>
 		{/if}
-		<p>Average {scoring.title}: <strong>{(totalScore / results.length).toFixed(3)}</strong></p>
+		{#if results.length > 0}
+			<p>Average {scoring.title}: <strong>{(totalScore / results.length).toFixed(3)}</strong></p>
+		{/if}
 		{#if !inProgress}
 			<button on:click={onClose}>Close</button>
 		{/if}

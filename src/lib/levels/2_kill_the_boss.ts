@@ -10,7 +10,7 @@ export const generator: WorldGenerator = (seed, user) => {
 		size,
 		pieces: [],
 		randomSeed: seed,
-		victoryCondition: (w) => w.pieces.filter((p) => p.type === 'food').length === 0
+		victoryCondition: (w) => w.pieces.filter((p) => p.owner === 'boss').length === 0
 	});
 
 	const occupiedCoords = new Set<string>();

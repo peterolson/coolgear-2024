@@ -15,6 +15,7 @@
 	export let codeVersions: CodeVersion[];
 	export let generator: WorldGenerator;
 	export let scoring: WorldScoring;
+	export let colorFilters: Record<string, string>;
 
 	let selectedCodeVersion = codeVersions[0]?._id ?? 'default';
 
@@ -213,11 +214,13 @@
 					❗
 				{/if}
 				{#if log.piece}
+					{@const colorFilter = log.piece ? colorFilters[log.piece.owner] : colorFilters.map}
 					<img
 						src={`/pieces/${log.piece.type}${log.piece.gender || ''}.svg`}
 						alt="piece"
 						width="16"
 						height="16"
+						style={colorFilter}
 					/>
 					({log.piece.x}, {log.piece.y})
 				{/if}
@@ -226,11 +229,15 @@
 				{/if}
 				<span class="log-message">{log.message}</span>
 				{#if log.recipient}
+					{@const colorFilter = log.recipient
+						? colorFilters[log.recipient.owner]
+						: colorFilters.map}
 					<img
 						src={`/pieces/${log.recipient.type}${log.recipient.gender || ''}.svg`}
 						alt="piece"
 						width="16"
 						height="16"
+						style={colorFilter}
 					/>
 					({log.recipient.x}, {log.recipient.y})
 				{/if}

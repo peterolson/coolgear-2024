@@ -9,6 +9,14 @@ export type World = {
 	moveCount: number;
 };
 
+export type PieceFilters =
+	| {
+			owner?: string;
+			type?: PieceType;
+			gender?: Gender;
+	  }
+	| ((piece: Piece) => boolean);
+
 export class Piece {
 	id: string;
 	owner: string;
@@ -67,14 +75,33 @@ export class Piece {
 		return Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y));
 	}
 
+	static filter(pieces: Piece[], filters?: PieceFilters) {
+		if (!filters) return pieces;
+		if (typeof filters === 'function') {
+			return pieces.filter(filters);
+		}
+		return pieces.filter((p) => {
+			if (filters.owner && p.owner !== filters.owner) {
+				return false;
+			}
+			if (filters.type && p.type !== filters.type) {
+				return false;
+			}
+			if (filters.gender && p.gender !== filters.gender) {
+				return false;
+			}
+			return true;
+		});
+	}
+
 	distanceTo(piece: Piece | Coord) {
 		return Piece.distance(this, piece);
 	}
 
-	findClosestPiece() {
+	findClosestPiece(filters?: PieceFilters) {
 		let minDistance = Infinity;
 		let closestPiece: Piece | null = null;
-		for (const piece of this.world.pieces) {
+		for (const piece of Piece.filter(this.world.pieces, filters)) {
 			if (piece.id === this.id) continue;
 			const distance = this.distanceTo(piece);
 			if (distance < minDistance) {
@@ -85,8 +112,11 @@ export class Piece {
 		return closestPiece;
 	}
 
-	findClosestPieces(n: number) {
-		const pieces = this.world.pieces.filter((p) => p.id !== this.id);
+	findClosestPieces(n: number, filters?: PieceFilters) {
+		const pieces = Piece.filter(
+			this.world.pieces.filter((p) => p.id !== this.id),
+			filters
+		);
 		pieces.sort((a, b) => this.distanceTo(a) - this.distanceTo(b));
 		return pieces.slice(0, n);
 	}
@@ -162,9 +192,26 @@ export class Piece {
 		}
 		return bestMove;
 	}
+
+	moveAwayFrom(piece: Piece | Coord): Move {
+		const moves = this.availableMoves();
+		let maxDistance = -Infinity;
+		let bestMove: Move = { dx: 0, dy: 0, action: 'move' };
+		for (const move of moves) {
+			const x = this.x + move.dx;
+			const y = this.y + move.dy;
+			const distance = Piece.distance({ x, y }, piece);
+			if (distance > maxDistance) {
+				maxDistance = distance;
+				bestMove = move;
+			}
+		}
+		console.log('bestMove', bestMove);
+		return bestMove;
+	}
 }
 
-export type Action = 'move' | 'eat' | 'reproduce';
+export type Action = 'move' | 'eat' | 'reproduce' | 'attack';
 
 export type Move = {
 	dx: -1 | 0 | 1;

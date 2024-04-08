@@ -108,14 +108,14 @@ declare class Piece {
 	 * Finds the closest piece in the world.
 	 * @returns {Piece | null} The closest piece, or null if no other pieces are in the world.
 	 */
-	findClosestPiece(): Piece | null;
+	findClosestPiece(filters?: PieceFilters): Piece | null;
 
 	/**
 	 * Finds the *n* closest pieces in the world, sorted by distance.
 	 * @param {number} n - The number of closest pieces to find.
 	 * @returns {Piece[]} Array of the closest pieces.
 	 */
-	findClosestPieces(n: number): Piece[];
+	findClosestPieces(n: number, filters?: PieceFilters): Piece[];
 
 	/**
 	 * Checks if a piece is adjacent to another piece.
@@ -144,6 +144,13 @@ declare class Piece {
 	 * @returns {Move} The move to take.
 	 */
 	moveTowards(piece: Piece | Coord, action: Action, secondaryDestination?: Piece | Coord): Move;
+
+	/**
+	 * Finds the move that maximizes the distance between this piece and another piece.
+	 * @param {Piece | Coord} piece - The other piece to move away from.
+	 * @returns {Move} The move to take.
+	 */
+	moveAwayFrom(piece: Piece | Coord): Move;
 }
 
 /**
@@ -169,13 +176,28 @@ declare type Move = {
 /**
  * Action to take during a turn.
  */
-declare type Action = 'move' | 'eat' | 'reproduce';
+declare type Action = 'move' | 'eat' | 'reproduce' | 'attack';
 
 /**
  * x, y coordinates of a place in the world.
  */
 declare type Coord = { x: number; y: number };
 
+/**
+ * Filter for finding pieces.
+ */
+declare type PieceFilters =
+	| {
+			owner?: string;
+			type?: PieceType;
+			gender?: Gender;
+	  }
+	| ((piece: Piece) => boolean);
+
+/**
+ * Log a message to the log tab.
+ * @param {...any} args - Arguments to log.
+ */
 declare function log(...args: any[]): void;
 
 /**

@@ -97,12 +97,16 @@ export class World {
 	}[];
 	moveCount: number;
 	victoryCondition: (w: World) => boolean;
+	lossCondition?: (w: World) => boolean;
+	betweenSteps?: (w: World) => void;
 
 	constructor(obj: {
 		size: number;
 		pieces: Piece[];
 		randomSeed: string;
 		victoryCondition: (w: World) => boolean;
+		lossCondition?: (w: World) => boolean;
+		betweenSteps?: (w: World) => void;
 	}) {
 		this.size = obj.size;
 		this.pieces = obj.pieces;
@@ -122,6 +126,8 @@ export class World {
 			}
 		});
 		this.victoryCondition = obj.victoryCondition;
+		this.lossCondition = obj.lossCondition;
+		this.betweenSteps = obj.betweenSteps;
 	}
 
 	reset() {
@@ -163,6 +169,8 @@ export class World {
 		this.moveCount++;
 		this.log(`step ${this.moveCount}`);
 		for (const piece of moveablePieces) {
+			// skip if piece is dead
+			if (piece.hitpoints <= 0) continue;
 			const logPiece = piece.clone();
 			try {
 				const world = {
@@ -223,19 +231,52 @@ export class World {
 						this.error("can't eat that, it's not edible!");
 						continue;
 					}
+					if (piece.hitpoints < piece.maxHitpoints) {
+						piece.hitpoints = Math.min(piece.hitpoints + 1, piece.maxHitpoints);
+					} else {
+						piece.maxHitpoints += 1 / piece.maxHitpoints;
+						piece.hitpoints = piece.maxHitpoints;
+					}
 					this.pieces = this.pieces.filter((p) => p !== eaten);
 					this.log('ate', piece, move, eaten);
 					hasMoved = true;
+				} else if (move.action === 'attack') {
+					const attacked = this.pieces.find((p) => p.x === nextX && p.y === nextY);
+					if (!attacked) {
+						this.error('nothing to attack there!', logPiece, move);
+						continue;
+					}
+					const attack = piece.attack;
+					attacked.hitpoints -= attack;
+					if (attacked.hitpoints <= 0) {
+						this.pieces = this.pieces.filter((p) => p.id !== attacked.id);
+						const hitsToKill = attacked.maxHitpoints / piece.attack;
+						const hitsToBeKilled = piece.maxHitpoints / attacked.attack;
+						const attackImprovement = Math.min(5, hitsToKill / hitsToBeKilled);
+						piece.attack += attackImprovement;
+						this.log('killed', logPiece, move, attacked);
+					} else {
+						this.log('attacked', logPiece, move, attacked);
+					}
 				}
 			} catch (e) {
 				console.error(e);
 				this.error(`error evaluating function: ${String(e)}`, logPiece);
 			}
 		}
+		this.betweenSteps?.(this);
 		return { hasMoved };
 	}
 
 	async run(notifyStepCompleted: () => Promise<boolean>) {
+		if (this.victoryCondition(this)) {
+			this.log('Already solved this map');
+			return;
+		}
+		if (this.lossCondition?.(this)) {
+			this.log('You have been defeated. :(');
+			return;
+		}
 		const maxSteps = 1000;
 		const maxConsecutiveNoMoves = 5;
 		let consecutiveNoMoves = 0;
@@ -245,6 +286,10 @@ export class World {
 			const isStopped = await notifyStepCompleted();
 			if (isStopped) {
 				this.log('Stopped manually by user.');
+				return;
+			}
+			if (this.lossCondition?.(this)) {
+				this.log('You have been defeated. :(');
 				return;
 			}
 			if (this.victoryCondition(this)) {

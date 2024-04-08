@@ -10,7 +10,27 @@ export const generator: WorldGenerator = (seed, user) => {
 		size,
 		pieces: [],
 		randomSeed: seed,
-		victoryCondition: (w) => w.pieces.filter((p) => p.owner === 'boss').length === 0
+		victoryCondition: (w) => w.pieces.filter((p) => p.owner === 'enemy').length === 0,
+		lossCondition: (w) => w.pieces.filter((p) => p.owner === user).length === 0,
+		betweenSteps: (w) => {
+			// ensure that there are always 15 food items on the map
+			while (w.pieces.filter((p) => p.type === 'food').length < 15) {
+				const coord = r.nextCoordinate(size);
+				if (w.pieces.find((p) => p.x === coord.x && p.y === coord.y)) {
+					continue;
+				}
+				w.pieces.push(
+					new Piece({
+						id: r.nextUUID(),
+						owner: 'map',
+						type: 'food',
+						gender: r.nextArrayElement(['male', 'female']),
+						...coord,
+						world
+					})
+				);
+			}
+		}
 	});
 
 	const occupiedCoords = new Set<string>();
@@ -20,7 +40,7 @@ export const generator: WorldGenerator = (seed, user) => {
 	world.pieces.push(
 		new Piece({
 			id: r.nextUUID(),
-			owner: 'boss',
+			owner: 'enemy',
 			type: 'human',
 			gender: 'male',
 			...bossCoord,
@@ -71,6 +91,23 @@ export const generator: WorldGenerator = (seed, user) => {
 			})
 		);
 	}
+
+	const enemyStrategy = function nextMove(
+		self: Piece,
+		world: World,
+		r: RandomNumberGenerator
+	): Move {
+		const closestHuman = self.findClosestPiece({ owner: '__USER__' });
+		if (!closestHuman) return { dx: 0, dy: 0, action: 'move' };
+		const closestFood = self.findClosestPiece({ type: 'food' });
+		if (closestFood && self.isAdjacentTo(closestFood)) {
+			return self.moveTowards(closestFood, 'eat');
+		}
+		return self.moveTowards(closestHuman, 'attack');
+	};
+
+	const enemyCode = enemyStrategy.toString().replaceAll('__USER__', user);
+	world.setCode('enemy', enemyCode);
 
 	return world;
 };

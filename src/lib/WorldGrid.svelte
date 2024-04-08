@@ -27,7 +27,8 @@
 		map: '',
 		[user.displayName]:
 			'filter: invert(18%) sepia(38%) saturate(5630%) hue-rotate(230deg) brightness(80%) contrast(141%)', // blue
-		boss: 'filter: invert(13%) sepia(95%) saturate(3553%) hue-rotate(355deg) brightness(84%) contrast(120%);' // red
+		enemy:
+			'filter: invert(13%) sepia(95%) saturate(3553%) hue-rotate(355deg) brightness(84%) contrast(120%);' // red
 	};
 </script>
 
@@ -53,7 +54,7 @@
 							alt="piece"
 							width="100"
 							height="100"
-							title={`${piece.owner} ${piece.type} ${piece.gender || ''} (${piece.x}, ${piece.y}) ${piece.hitpoints}/${piece.maxHitpoints}HP ${piece.attack} attack`}
+							title={`${piece.owner} ${piece.type} ${piece.gender || ''} (${piece.x}, ${piece.y}) ${piece.hitpoints.toFixed(3)}/${piece.maxHitpoints.toFixed(3)}HP ${piece.attack.toFixed(3)} attack`}
 							style={colorFilter}
 						/>
 					{:else}
@@ -79,6 +80,7 @@
 	</div>
 	<CodeEditor
 		{defaultCode}
+		{colorFilters}
 		{lib}
 		user={user.displayName}
 		{level}

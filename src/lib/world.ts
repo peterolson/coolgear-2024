@@ -164,7 +164,7 @@ export class World {
 	}
 
 	async step() {
-		const moveablePieces = this.r.toShuffled(this.pieces.filter((p) => p.owner in this.code));
+		const moveablePieces = this.pieces.filter((p) => p.owner in this.code);
 		let hasMoved = false;
 		this.moveCount++;
 		this.log(`step ${this.moveCount}`);

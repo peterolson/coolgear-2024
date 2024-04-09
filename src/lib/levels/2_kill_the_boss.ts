@@ -54,7 +54,7 @@ export const generator: WorldGenerator = (seed, user) => {
 		})
 	);
 
-	while (world.pieces.length < 5) {
+	while (world.pieces.length < 6) {
 		const coord = r.nextCoordinate(size);
 		const coordKey = `${coord.x},${coord.y}`;
 		if (occupiedCoords.has(coordKey)) {

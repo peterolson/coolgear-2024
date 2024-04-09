@@ -16,23 +16,25 @@ worker.onmessage = (e) => {
 	}
 };
 
+const TIMEOUT = 5000;
+
 async function awaitResponse(type: string, args: Record<string, any>) {
 	const id = crypto.randomUUID();
 	worker.postMessage({ type: type, id, ...args });
 	return new Promise((resolve) => {
 		const timeout = setTimeout(() => {
 			listeners.delete(id);
-			console.error('timeout! took longer than 1s to respond');
+			console.error(`timeout! took longer than ${TIMEOUT}ms to respond`);
 			worker.terminate();
 			const messageListener = worker.onmessage;
 			worker = new Worker(new URL('$lib/codeWorker', import.meta.url), { type: 'module' });
 			worker.onmessage = messageListener;
 			resolve({
 				move: {
-					error: 'timeout! took longer than 1s to respond'
+					error: `timeout! took longer than ${TIMEOUT}ms to respond`
 				}
 			});
-		}, 1000);
+		}, TIMEOUT);
 		listeners.set(id, (e) => {
 			resolve(e);
 			listeners.delete(id);
@@ -199,11 +201,19 @@ export class World {
 					this.log('sat still', logPiece, move);
 					continue;
 				}
-				const nextX = piece.x + move.dx;
-				const nextY = piece.y + move.dy;
-				if (nextX < 0 || nextX >= this.size || nextY < 0 || nextY >= this.size) {
-					this.error('cannot move out of bounds!', logPiece, move);
-					continue;
+				let nextX = piece.x + move.dx;
+				let nextY = piece.y + move.dy;
+				if (nextX < 0) {
+					nextX += this.size;
+				}
+				if (nextX >= this.size) {
+					nextX -= this.size;
+				}
+				if (nextY < 0) {
+					nextY += this.size;
+				}
+				if (nextY >= this.size) {
+					nextY -= this.size;
 				}
 				if (move.action === 'move') {
 					if (this.pieces.some((p) => p.x === nextX && p.y === nextY)) {
@@ -259,6 +269,9 @@ export class World {
 						this.log('attacked', logPiece, move, attacked);
 					}
 				}
+				if (this.victoryCondition(this) || this.lossCondition?.(this)) {
+					return { hasMoved };
+				}
 			} catch (e) {
 				console.error(e);
 				this.error(`error evaluating function: ${String(e)}`, logPiece);
@@ -277,7 +290,7 @@ export class World {
 			this.log('You have been defeated. :(');
 			return;
 		}
-		const maxSteps = 1000;
+		const maxSteps = 10000;
 		const maxConsecutiveNoMoves = 5;
 		let consecutiveNoMoves = 0;
 		let i = 0;

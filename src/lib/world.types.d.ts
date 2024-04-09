@@ -93,9 +93,10 @@ declare class Piece {
 	 * Calculates the distance between two pieces.
 	 * @param {Piece | Coord} a - The first piece.
 	 * @param {Piece | Coord} b - The second piece.
+	 * @param {World} [world] - The world the coordinates are in.
 	 * @returns {number} The distance between the two pieces.
 	 */
-	static distance(a: Piece | Coord, b: Piece | Coord): number;
+	static distance(a: Piece | Coord, b: Piece | Coord, world?: World): number;
 
 	/**
 	 * Calculates the distance to another piece.

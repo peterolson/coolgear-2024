@@ -19,16 +19,19 @@ export const generator: WorldGenerator = (seed, user) => {
 				if (w.pieces.find((p) => p.x === coord.x && p.y === coord.y)) {
 					continue;
 				}
-				w.pieces.push(
-					new Piece({
-						id: r.nextUUID(),
-						owner: 'map',
-						type: 'food',
-						gender: r.nextArrayElement(['male', 'female']),
-						...coord,
-						world
-					})
-				);
+				const food = new Piece({
+					id: r.nextUUID(),
+					owner: 'map',
+					type: 'food',
+					gender: r.nextArrayElement(['male', 'female']),
+					...coord,
+					world
+				});
+				const closestPiece = food.findClosestPiece();
+				if (closestPiece && food.distanceTo(closestPiece) < 2) {
+					continue;
+				}
+				w.pieces.push(food);
 			}
 		}
 	});
@@ -58,19 +61,22 @@ export const generator: WorldGenerator = (seed, user) => {
 			continue;
 		}
 		occupiedCoords.add(coordKey);
-		world.pieces.push(
-			new Piece({
-				id: r.nextUUID(),
-				owner: user,
-				type: 'human',
-				gender: 'male',
-				...coord,
-				world,
-				hitpoints: 10,
-				maxHitpoints: 10,
-				attack: 3
-			})
-		);
+		const piece = new Piece({
+			id: r.nextUUID(),
+			owner: user,
+			type: 'human',
+			gender: 'male',
+			...coord,
+			world,
+			hitpoints: 10,
+			maxHitpoints: 10,
+			attack: 3
+		});
+		const closestPiece = piece.findClosestPiece();
+		if (closestPiece && piece.distanceTo(closestPiece) < 4) {
+			continue;
+		}
+		world.pieces.push(piece);
 	}
 
 	while (world.pieces.length < 20) {
@@ -80,16 +86,19 @@ export const generator: WorldGenerator = (seed, user) => {
 			continue;
 		}
 		occupiedCoords.add(coordKey);
-		world.pieces.push(
-			new Piece({
-				id: r.nextUUID(),
-				owner: 'map',
-				type: 'food',
-				gender: r.nextArrayElement(['male', 'female']),
-				...coord,
-				world
-			})
-		);
+		const food = new Piece({
+			id: r.nextUUID(),
+			owner: 'map',
+			type: 'food',
+			gender: r.nextArrayElement(['male', 'female']),
+			...coord,
+			world
+		});
+		const closestPiece = food.findClosestPiece();
+		if (closestPiece && food.distanceTo(closestPiece) < 2) {
+			continue;
+		}
+		world.pieces.push(food);
 	}
 
 	const enemyStrategy = function nextMove(
